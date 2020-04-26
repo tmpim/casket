@@ -25,7 +25,7 @@ CHANGES
 
 
 1.0.1 (July 2, 2019)
-- Move repo and module paths to github.com/caddyserver/caddy
+- Move repo and module paths to github.com/tmpim/casket
 - New third-party plugin: pubsub
 - gzip: Automatically compress .wasm files
 - tls: Clean up locks from ACME operations on soft exit
@@ -68,7 +68,7 @@ CHANGES
 
 
 0.11.4 (February 15, 2019)
-- New -json-to-caddyfile and -caddyfile-to-json flags
+- New -json-to-casketfile and -casketfile-to-json flags
 - Fix leaking logging goroutine on SIGUSR1
 - basicauth: Error is logged when authentication fails
 - proxy: Fix bug by re-adding pre-existing trailing slashes
@@ -109,7 +109,7 @@ CHANGES
 - fastcgi: Strip PATH_INFO from SCRIPT_FILENAME
 - fastcgi: Add REQUEST_SCHEME to environment
 - gzip: Compress .m3u and .m3u8 files by default
-- telemetry: Honor CADDY_UUID_FILE env variable
+- telemetry: Honor CASKET_UUID_FILE env variable
 - templates: New .TLSVersion action
 - tls: Remove remaining RSA_CBC cipher suites from defaults
 - tls: Raise alert if no certificate matches exactly
@@ -138,7 +138,7 @@ CHANGES
 - tls: Prevent On-Demand TLS directory traversal
 - tls: Fix empty files when using ACME fails to obtain cert
 - Fixed test broken by 1.1.1.1 resolving
-- Improved Caddyfile parser robustness by fuzzing
+- Improved Casketfile parser robustness by fuzzing
 
 
 0.10.12 (March 27, 2018)
@@ -160,7 +160,7 @@ CHANGES
 
 0.10.11 (February 20, 2018)
 - Built with Go 1.10
-- Reusable snippets for the Caddyfile
+- Reusable snippets for the Casketfile
 - Updated QUIC
 - Auto-HTTPS certificates may be shared by multiple instances
 - Expand globbed values in -conf flag
@@ -183,7 +183,7 @@ CHANGES
 
 0.10.10 (October 9, 2017)
 - Built with Go 1.9.1
-- Removed Caddy-Sponsors header
+- Removed Casket-Sponsors header
 - New 'on' directive that deprecates 'startup' and 'shutdown'
 - Changed CASE_SENSITIVE_PATH default to false
 - fastcgi: Support for SRV upstreams
@@ -193,7 +193,7 @@ CHANGES
 
 0.10.9 (September 12, 2017)
 - EULA bundled with official binaries
-- Caddy-Sponsors header to indicate personal-use license
+- Casket-Sponsors header to indicate personal-use license
 - proxy: Support for QUIC backends
 - templates: Write proper status code if proxied
 - tls: Fix bug related to cert renewals
@@ -306,7 +306,7 @@ CHANGES
 
 
 0.9.5 (January 24, 2017)
-- New -validate flag to only check a Caddyfile, then exit
+- New -validate flag to only check a Casketfile, then exit
 - New {when_iso} placeholder for timestamp ISO 8601 in UTC
 - New {rewrite_path} and {rewrite_path_escaped} placeholders
 - New 'timeouts' directive to configure or disable HTTP timeouts
@@ -314,7 +314,7 @@ CHANGES
 - basicauth: Authorization header stripped upon successful login
 - browse: Added textbox to filter listing in default template
 - browse: Sanitize file names and links in default template
-- browse: Ensure active Caddyfile is hidden regardless of cwd
+- browse: Ensure active Casketfile is hidden regardless of cwd
 - fastcgi: New 'root' property, mainly for use with containers
 - markdown: Apply some front matter fields as <meta> tags
 - proxy: Fixed HTTP/2 upstream to backend; honors -http CLI flag
@@ -381,7 +381,7 @@ CHANGES
 - tls: OCSP staples persisted to disk
 - tls: ACME challenges honor bind directive
 - tls: Fix default protocol version (minimum TLS 1.1)
-- tls: Consume challenge requests only for names Caddy is solving for
+- tls: Consume challenge requests only for names Casket is solving for
 - tls: The protocol syntax allows just one value if desired
 - tls: Scoped max_certs limit to site instead of global maximum
 - Many other bug fixes and minor enhancements
@@ -391,8 +391,8 @@ CHANGES
 - New core
 - New experimental QUIC support with -quic flag (HTTPS only)
 - New -type option to specify other server types
-- Moved ~/.caddy/letsencrypt to ~/.caddy/acme and reorganized assets
-- Moved caddy package to top level folder, and pushed main to subfolder
+- Moved ~/.casket/letsencrypt to ~/.casket/acme and reorganized assets
+- Moved casket package to top level folder, and pushed main to subfolder
 - New {request} placeholder to dump entire request (without body)
 - New {hostonly} placeholder for only hostname portion of host value
 - Site addresses can have paths
@@ -401,7 +401,7 @@ CHANGES
 - Restarting no longer requires spawning a new process
 - Removed -restart option
 - fastcgi: Env variables now support placeholders
-- import: Import paths now relative to Caddyfile, not current working dir
+- import: Import paths now relative to Casketfile, not current working dir
 - markdown: Overhauled; removed site generation features
 - proxy: More control of headers; deprecating proxy_header subdirective
 - proxy: Specify multiple upstreams with optional port ranges
@@ -454,7 +454,7 @@ CHANGES
 0.8.1 (January 12, 2016)
 - Improved OCSP stapling
 - Better graceful reload when new hosts need certificates from Let's Encrypt
-- Current pidfile is now deleted when Caddy exits
+- Current pidfile is now deleted when Casket exits
 - browse: New default template
 - gzip: Added min_length setting
 - import: Support for glob patterns (*) to import multiple files
@@ -469,7 +469,7 @@ CHANGES
 0.8 (December 4, 2015)
 - HTTPS by default via Let's Encrypt (certs & keys are fully managed)
 - Graceful restarts (on POSIX-compliant systems)
-- Major internal refactoring to allow use of Caddy as library
+- Major internal refactoring to allow use of Casket as library
 - New directive 'mime' to customize Content-Type based on file extension
 - New -accept flag to accept Let's Encrypt SA without prompt
 - New -email flag to customize default email used for ACME transactions
@@ -480,7 +480,7 @@ CHANGES
 - New -grace flag to customize the graceful shutdown timeout
 - New support for SIGHUP, SIGTERM, and SIGQUIT signals
 - browse: Render filenames with multiple whitespace properly
-- core: Use environment variables in Caddyfile
+- core: Use environment variables in Casketfile
 - markdown: Include Last-Modified header in response
 - markdown: Render tables, strikethrough, and fenced code blocks
 - proxy: Ability to exclude/ignore paths from proxying
@@ -495,10 +495,10 @@ CHANGES
 
 
 0.7.6 (September 28, 2015)
-- Pass in simple Caddyfile as command line arguments
+- Pass in simple Casketfile as command line arguments
 - basicauth: Support for legacy htpasswd files
 - browse: JSON response with file listing
-- core: Caddyfile as command line argument
+- core: Casketfile as command line argument
 - errors: Can write full stack trace to HTTP response for debugging
 - errors, log: Roll log files after certain size or age
 - proxy: Fix for 32-bit architectures
@@ -522,8 +522,8 @@ CHANGES
 0.7.4 (July 30, 2015)
 - browse: Sorting preference persisted in cookie
 - browse: Added index.txt and default.txt to list of default files
-- browse: Template files may now use Caddy template actions
-- markdown: Template files may now use Caddy template actions
+- browse: Template files may now use Casket template actions
+- markdown: Template files may now use Casket template actions
 - markdown: Several bug fixes, especially for large and empty Markdown files
 - markdown: Generate index pages to link to markdown pages (sitegen only)
 - markdown: Flatten structure of front matter, changed template variables
@@ -543,7 +543,7 @@ CHANGES
 
 
 0.7.2 (July 1, 2015)
-- Custom builds through caddyserver.com - extend Caddy by writing addons
+- Custom builds through casketserver.com - extend Casket by writing addons
 - browse: Sort by clicking column heading or using query string
 - core: Serving hostname that doesn't resolve issues warning then listens on 0.0.0.0
 - errors: Missing error page during parse time is warning, not error
@@ -570,7 +570,7 @@ CHANGES
 - New directive 'internal' to protect resources with X-Accel-Redirect
 - New -version flag to show program name and version
 - core: Fixed escaped backslash characters inside quoted strings
-- core: Fixed parsing Caddyfile for IPv6 addresses missing ports
+- core: Fixed parsing Casketfile for IPv6 addresses missing ports
 - core: A notice is shown when non-local address resolves to loopback interface
 - core: Warns if file descriptor limit is too low for production site (Mac/Linux)
 - fastcgi: Support for Unix sockets

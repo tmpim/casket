@@ -6,11 +6,11 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/caddyserver/caddy"
+	"github.com/tmpim/casket"
 )
 
 // Hook executes a command.
-func (cfg *Config) Hook(event caddy.EventName, info interface{}) error {
+func (cfg *Config) Hook(event casket.EventName, info interface{}) error {
 	if event != cfg.Event {
 		return nil
 	}

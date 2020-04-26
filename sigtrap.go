@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package caddy
+package casket
 
 import (
 	"log"
@@ -20,13 +20,13 @@ import (
 	"os/signal"
 	"sync"
 
-	"github.com/caddyserver/caddy/telemetry"
+	"github.com/tmpim/casket/telemetry"
 )
 
 // TrapSignals create signal handlers for all applicable signals for this
 // system. If your Go program uses signals, this is a rather invasive
 // function; best to implement them yourself in that case. Signals are not
-// required for the caddy package to function properly, but this is a
+// required for the casket package to function properly, but this is a
 // convenient way to allow the user to control this part of your program.
 func TrapSignals() {
 	trapSignalsCrossPlatform()

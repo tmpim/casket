@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package caddy
+package casket
 
 import (
 	"strings"
 
-	"github.com/caddyserver/caddy/caddyfile"
+	"github.com/tmpim/casket/casketfile"
 )
 
 // Controller is given to the setup function of directives which
@@ -26,7 +26,7 @@ import (
 // functions, can get the current context, and can be used to
 // identify a particular server block using the Key field.
 type Controller struct {
-	caddyfile.Dispenser
+	casketfile.Dispenser
 
 	// The instance in which the setup is occurring
 	instance *Instance
@@ -139,7 +139,7 @@ func NewTestController(serverType, input string) *Controller {
 	}
 	return &Controller{
 		instance:           testInst,
-		Dispenser:          caddyfile.NewDispenser("Testfile", strings.NewReader(input)),
+		Dispenser:          casketfile.NewDispenser("Testfile", strings.NewReader(input)),
 		OncePerServerBlock: func(f func() error) error { return f() },
 	}
 }

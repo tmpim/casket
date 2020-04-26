@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package caddy
+package casket
 
 import (
 	"os"
@@ -22,14 +22,14 @@ import (
 
 // AssetsPath returns the path to the folder
 // where the application may store data. If
-// CADDYPATH env variable is set, that value
+// CASKETPATH env variable is set, that value
 // is used. Otherwise, the path is the result
-// of evaluating "$HOME/.caddy".
+// of evaluating "$HOME/.casket".
 func AssetsPath() string {
-	if caddyPath := os.Getenv("CADDYPATH"); caddyPath != "" {
-		return caddyPath
+	if casketPath := os.Getenv("CASKETPATH"); casketPath != "" {
+		return casketPath
 	}
-	return filepath.Join(userHomeDir(), ".caddy")
+	return filepath.Join(userHomeDir(), ".casket")
 }
 
 // userHomeDir returns the user's home directory according to

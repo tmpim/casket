@@ -3,17 +3,17 @@ package onevent
 import (
 	"strings"
 
-	"github.com/caddyserver/caddy"
-	"github.com/caddyserver/caddy/onevent/hook"
+	"github.com/tmpim/casket"
+	"github.com/tmpim/casket/onevent/hook"
 	"github.com/google/uuid"
 )
 
 func init() {
 	// Register Directive.
-	caddy.RegisterPlugin("on", caddy.Plugin{Action: setup})
+	casket.RegisterPlugin("on", casket.Plugin{Action: setup})
 }
 
-func setup(c *caddy.Controller) error {
+func setup(c *casket.Controller) error {
 	config, err := onParse(c)
 	if err != nil {
 		return err
@@ -22,7 +22,7 @@ func setup(c *caddy.Controller) error {
 	// Register Event Hooks.
 	err = c.OncePerServerBlock(func() error {
 		for _, cfg := range config {
-			caddy.RegisterEventHook("on-"+cfg.ID, cfg.Hook)
+			casket.RegisterEventHook("on-"+cfg.ID, cfg.Hook)
 		}
 		return nil
 	})
@@ -33,7 +33,7 @@ func setup(c *caddy.Controller) error {
 	return nil
 }
 
-func onParse(c *caddy.Controller) ([]*hook.Config, error) {
+func onParse(c *casket.Controller) ([]*hook.Config, error) {
 	var config []*hook.Config
 
 	for c.Next() {
@@ -56,7 +56,7 @@ func onParse(c *caddy.Controller) ([]*hook.Config, error) {
 		args := c.RemainingArgs()
 
 		// Extract command and arguments.
-		command, args, err := caddy.SplitCommandAndArgs(strings.Join(args, " "))
+		command, args, err := casket.SplitCommandAndArgs(strings.Join(args, " "))
 		if err != nil {
 			return config, c.Err(err.Error())
 		}

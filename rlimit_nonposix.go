@@ -14,7 +14,7 @@
 
 // +build windows plan9 nacl js
 
-package caddy
+package casket
 
 // checkFdlimit issues a warning if the OS limit for
 // max file descriptors is below a recommended minimum.

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package caddy
+package casket
 
 import (
 	"os"
@@ -21,19 +21,19 @@ import (
 )
 
 func TestAssetsPath(t *testing.T) {
-	if actual := AssetsPath(); !strings.HasSuffix(actual, ".caddy") {
-		t.Errorf("Expected path to be a .caddy folder, got: %v", actual)
+	if actual := AssetsPath(); !strings.HasSuffix(actual, ".casket") {
+		t.Errorf("Expected path to be a .casket folder, got: %v", actual)
 	}
 
-	err := os.Setenv("CADDYPATH", "testpath")
+	err := os.Setenv("CASKETFILE", "testpath")
 	if err != nil {
-		t.Error("Could not set CADDYPATH")
+		t.Error("Could not set CASKETFILE")
 	}
 	if actual, expected := AssetsPath(), "testpath"; actual != expected {
 		t.Errorf("Expected path to be %v, got: %v", expected, actual)
 	}
-	err = os.Setenv("CADDYPATH", "")
+	err = os.Setenv("CASKETFILE", "")
 	if err != nil {
-		t.Error("Could not set CADDYPATH")
+		t.Error("Could not set CASKETFILE")
 	}
 }

@@ -1,4 +1,4 @@
-module github.com/caddyserver/caddy
+module github.com/tmpim/casket
 
 go 1.13
 

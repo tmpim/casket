@@ -5,7 +5,7 @@ as to be in full compliance with the licenses of all bundled property.
 
 
 ###
-### github.com/caddyserver/caddy
+### github.com/tmpim/casket
 ###
 
                                  Apache License

@@ -1,15 +1,15 @@
-Contributing to Caddy
+Contributing to Casket
 =====================
 
-Welcome! Thank you for choosing to be a part of our community. Caddy wouldn't be great without your involvement!
+Welcome! Thank you for choosing to be a part of our community. Casket wouldn't be great without your involvement!
 
-For starters, we invite you to join [the Caddy forum](https://caddy.community) where you can hang out with other Caddy users and developers.
+For starters, we invite you to join [the Casket forum](https://casket.community) where you can hang out with other Casket users and developers.
 
 ## Common Tasks
 
 - [Contributing code](#contributing-code)
 - [Writing a plugin](#writing-a-plugin)
-- [Asking or answering questions for help using Caddy](#getting-help-using-caddy)
+- [Asking or answering questions for help using Casket](#getting-help-using-casket)
 - [Reporting a bug](#reporting-bugs)
 - [Suggesting an enhancement or a new feature](#suggesting-features)
 - [Improving documentation](#improving-documentation)
@@ -23,7 +23,7 @@ Other menu items:
 
 ### Contributing code
 
-You can have a huge impact on the project by helping with its code. To contribute code to Caddy, open a [pull request](https://github.com/caddyserver/caddy/pulls) (PR). If you're new to our community, that's okay: **we gladly welcome pull requests from anyone, regardless of your native language or coding experience.** You can get familiar with Caddy's code base by using [code search at Sourcegraph](https://sourcegraph.com/github.com/caddyserver/caddy/-/search).
+You can have a huge impact on the project by helping with its code. To contribute code to Casket, open a [pull request](https://github.com/tmpim/casket/pulls) (PR). If you're new to our community, that's okay: **we gladly welcome pull requests from anyone, regardless of your native language or coding experience.** You can get familiar with Casket's code base by using [code search at Sourcegraph](https://sourcegraph.com/github.com/tmpim/casket/-/search).
 
 We hold contributions to a high standard for quality :bowtie:, so don't be surprised if we ask for revisions&mdash;even if it seems small or insignificant. Please don't take it personally. :blue_heart: If your change is on the right track, we can guide you to make it mergable.
 
@@ -41,57 +41,57 @@ Here are some of the expectations we have of contributors:
 
 - **[Squash](http://gitready.com/advanced/2009/02/10/squashing-commits-with-rebase.html) insignificant commits.** Every commit should be significant. Commits which merely rewrite a comment or fix a typo can be combined into another commit that has more substance. Interactive rebase can do this, or a simpler way is `git reset --soft <diverging-commit>` then `git commit -s`.
 
-- **Own your contributions.** Caddy is a growing project, and it's much better when individual contributors help maintain their change after it is merged.
+- **Own your contributions.** Casket is a growing project, and it's much better when individual contributors help maintain their change after it is merged.
 
 - **Use comments properly.** We expect good godoc comments for package-level functions, types, and values. Comments are also useful whenever the purpose for a line of code is not obvious.
 
 We often grant [collaborator status](#collaborator-instructions) to contributors who author one or more significant, high-quality PRs that are merged into the code base!
 
 
-#### HOW TO MAKE A PULL REQUEST TO CADDY
+#### HOW TO MAKE A PULL REQUEST TO CASKET
 
 Contributing to Go projects on GitHub is fun and easy. We recommend the following workflow:
 
-1. [Fork this repo](https://github.com/caddyserver/caddy). This makes a copy of the code you can write to.
+1. [Fork this repo](https://github.com/tmpim/casket). This makes a copy of the code you can write to.
 
-2. If you don't already have this repo (caddyserver/caddy.git) repo on your computer, get it with `go get github.com/caddyserver/caddy/caddy`.
+2. If you don't already have this repo (tmpim/casket.git) repo on your computer, get it with `go get github.com/tmpim/casket/casket`.
 
-3. Tell git that it can push the caddyserver/caddy.git repo to your fork by adding a remote: `git remote add myfork https://github.com/you/caddy.git`
+3. Tell git that it can push the tmpim/casket.git repo to your fork by adding a remote: `git remote add myfork https://github.com/you/casket.git`
 
-4. Make your changes in the caddyserver/caddy.git repo on your computer.
+4. Make your changes in the tmpim/casket.git repo on your computer.
 
 5. Push your changes to your fork: `git push myfork`
 
-6. [Create a pull request](https://github.com/caddyserver/caddy/pull/new/master) to merge your changes into caddyserver/caddy @ master. (Click "compare across forks" and change the head fork.)
+6. [Create a pull request](https://github.com/tmpim/casket/pull/new/master) to merge your changes into tmpim/casket @ master. (Click "compare across forks" and change the head fork.)
 
 This workflow is nice because you don't have to change import paths. You can get fancier by using different branches if you want.
 
 
 ### Writing a plugin
 
-Caddy can do more with plugins! Anyone can write a plugin. Plugins are Go libraries that get compiled into Caddy, extending its feature set. They can add directives to the Caddyfile, change how the Caddyfile is loaded, and even implement new server types (e.g. HTTP, DNS). When it's ready, you can submit your plugin to the Caddy website so others can download it.
+Casket can do more with plugins! Anyone can write a plugin. Plugins are Go libraries that get compiled into Casket, extending its feature set. They can add directives to the Casketfile, change how the Casketfile is loaded, and even implement new server types (e.g. HTTP, DNS). When it's ready, you can submit your plugin to the Casket website so others can download it.
 
-[Learn how to write and submit a plugin](https://github.com/caddyserver/caddy/wiki) on the wiki. You should also share and discuss your plugin idea [on the forums](https://caddy.community) to have people test it out. We don't use the Caddy issue tracker for plugins.
+[Learn how to write and submit a plugin](https://github.com/tmpim/casket/wiki) on the wiki. You should also share and discuss your plugin idea [on the forums](https://casket.community) to have people test it out. We don't use the Casket issue tracker for plugins.
 
 
-### Getting help using Caddy
+### Getting help using Casket
 
-If you have a question about using Caddy, [ask on our forum](https://caddy.community)! There will be more people there who can help you than just the Caddy developers who follow our issue tracker. Issues are not the place for usage questions.
+If you have a question about using Casket, [ask on our forum](https://casket.community)! There will be more people there who can help you than just the Casket developers who follow our issue tracker. Issues are not the place for usage questions.
 
 Many people on the forums could benefit from your experience and expertise, too. Once you've been helped, consider giving back by answering other people's questions and participating in other discussions.
 
 
 ### Reporting bugs
 
-Like every software, Caddy has its flaws. If you find one, [search the issues](https://github.com/caddyserver/caddy/issues) to see if it has already been reported. If not, [open a new issue](https://github.com/caddyserver/caddy/issues/new) and describe the bug, and somebody will look into it! (This repository is only for Caddy and its standard modules.)
+Like every software, Casket has its flaws. If you find one, [search the issues](https://github.com/tmpim/casket/issues) to see if it has already been reported. If not, [open a new issue](https://github.com/tmpim/casket/issues/new) and describe the bug, and somebody will look into it! (This repository is only for Casket and its standard modules.)
 
 **You can help stop bugs in their tracks!** Speed up the patch by identifying the bug in the code. This can sometimes be done by adding `fmt.Println()` statements (or similar) in relevant code paths to narrow down where the problem may be. It's a good way to [introduce yourself to the Go language](https://tour.golang.org), too.
 
-Please follow the issue template so we have all the needed information. Unredacted&mdash;yes, actual values matter. We need to be able to repeat the bug using your instructions. Please simplify the issue as much as possible. The burden is on you to convince us that it is actually a bug in Caddy. This is easiest to do when you write clear, concise instructions so we can reproduce the behavior (even if it seems obvious). The more detailed and specific you are, the faster we will be able to help you!
+Please follow the issue template so we have all the needed information. Unredacted&mdash;yes, actual values matter. We need to be able to repeat the bug using your instructions. Please simplify the issue as much as possible. The burden is on you to convince us that it is actually a bug in Casket. This is easiest to do when you write clear, concise instructions so we can reproduce the behavior (even if it seems obvious). The more detailed and specific you are, the faster we will be able to help you!
 
 We suggest reading [How to Report Bugs Effectively](http://www.chiark.greenend.org.uk/~sgtatham/bugs.html).
 
-Please be kind. :smile: Remember that Caddy comes at no cost to you, and you're getting free support when we fix your issues. If we helped you, please consider helping someone else!
+Please be kind. :smile: Remember that Casket comes at no cost to you, and you're getting free support when we fix your issues. If we helped you, please consider helping someone else!
 
 #### Bug reporting requirements
 
@@ -121,16 +121,16 @@ The maintainer is usually able to do the rest; but of course the reporter may in
 
 ### Suggesting features
 
-First, [search to see if your feature has already been requested](https://github.com/caddyserver/caddy/issues). If it has, you can add a :+1: reaction to vote for it. If your feature idea is new, open an issue to request the feature. Please describe your idea thoroughly so that we know how to implement it! Really vague requests may not be helpful or actionable and, without clarification, will have to be closed.
+First, [search to see if your feature has already been requested](https://github.com/tmpim/casket/issues). If it has, you can add a :+1: reaction to vote for it. If your feature idea is new, open an issue to request the feature. Please describe your idea thoroughly so that we know how to implement it! Really vague requests may not be helpful or actionable and, without clarification, will have to be closed.
 
-While we really do value your requests and implement many of them, not all features are a good fit for Caddy. Most of those [make good plugins](https://github.com/caddyserver/caddy/wiki), which can be made by anyone! But if a feature is not in the best interest of the Caddy project or its users in general, we may politely decline to implement it into Caddy core.
+While we really do value your requests and implement many of them, not all features are a good fit for Casket. Most of those [make good plugins](https://github.com/tmpim/casket/wiki), which can be made by anyone! But if a feature is not in the best interest of the Casket project or its users in general, we may politely decline to implement it into Casket core.
 
 
 ### Improving documentation
 
-Caddy's documentation is available at [https://caddyserver.com/v1/docs](https://caddyserver.com/v1/docs). If you would like to make a fix to the docs, please submit an issue here describing the change to make.
+Casket's documentation is available at [https://casketserver.com/v1/docs](https://casketserver.com/v1/docs). If you would like to make a fix to the docs, please submit an issue here describing the change to make.
 
-Note that plugin documentation is not hosted by the Caddy website, other than basic usage examples. They are managed by the individual plugin authors, and you will have to contact them to change their documentation.
+Note that plugin documentation is not hosted by the Casket website, other than basic usage examples. They are managed by the individual plugin authors, and you will have to contact them to change their documentation.
 
 
 
@@ -153,9 +153,9 @@ Collaborators have push rights to the repository. We grant this permission after
 
 - **Prefer squashed commits over a messy merge.** If there are many little commits, please [squash the commits](https://stackoverflow.com/a/11732910/1048862) so we don't clutter the commit history.
 
-- **Don't accept new dependencies lightly.** Dependencies can make the world crash and burn, but they are sometimes necessary. Choose carefully. Extremely small dependencies (a few lines of code) can be inlined. The rest may not be needed. For those that are, Caddy vendors all dependencies with the help of [gvt](https://github.com/FiloSottile/gvt). All external dependencies must be vendored, and _Caddy must not export any types defined by those dependencies_. Check this diligently!
+- **Don't accept new dependencies lightly.** Dependencies can make the world crash and burn, but they are sometimes necessary. Choose carefully. Extremely small dependencies (a few lines of code) can be inlined. The rest may not be needed. For those that are, Casket vendors all dependencies with the help of [gvt](https://github.com/FiloSottile/gvt). All external dependencies must be vendored, and _Casket must not export any types defined by those dependencies_. Check this diligently!
 
-- **Be extra careful in some areas of the code.** There are some critical areas in the Caddy code base that we review extra meticulously: the `caddy` and `caddytls` packages especially.
+- **Be extra careful in some areas of the code.** There are some critical areas in the Casket code base that we review extra meticulously: the `casket` and `caskettls` packages especially.
 
 - **Make sure tests test the actual thing.** Double-check that the tests fail without the change, and pass with it. It's important that they assert what they're purported to assert.
 
@@ -176,10 +176,10 @@ Collaborators have push rights to the repository. We grant this permission after
 
 ## Responsible Disclosure
 
-If you've found a security vulnerability, please email me, the author, directly: Matthew dot Holt at Gmail. I'll need enough information to verify the bug and make a patch. It will speed things up if you suggest a working patch. If your report is valid and a patch is released, we will not reveal your identity by default. If you wish to be credited, please give me the name to use. Thanks for responsibly helping Caddy&mdash;and thousands of websites&mdash;be more secure!
+If you've found a security vulnerability, please email me, the author, directly: Matthew dot Holt at Gmail. I'll need enough information to verify the bug and make a patch. It will speed things up if you suggest a working patch. If your report is valid and a patch is released, we will not reveal your identity by default. If you wish to be credited, please give me the name to use. Thanks for responsibly helping Casket&mdash;and thousands of websites&mdash;be more secure!
 
 
 ## Thank you
 
-Thanks for your help! Caddy would not be what it is today without your
+Thanks for your help! Casket would not be what it is today without your
 contributions.

@@ -3,8 +3,8 @@ package onevent
 import (
 	"testing"
 
-	"github.com/caddyserver/caddy"
-	"github.com/caddyserver/caddy/onevent/hook"
+	"github.com/tmpim/casket"
+	"github.com/tmpim/casket/onevent/hook"
 )
 
 func TestSetup(t *testing.T) {
@@ -22,7 +22,7 @@ func TestSetup(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := caddy.NewTestController("http", test.input)
+			c := casket.NewTestController("http", test.input)
 			c.Key = test.name
 
 			err := setup(c)
@@ -45,14 +45,14 @@ func TestCommandParse(t *testing.T) {
 	}{
 		{name: "noInput", input: `on`, shouldErr: true},
 		{name: "nonExistent", input: "on xyz cmd arg", shouldErr: true},
-		{name: "startup", input: `on startup cmd arg1 arg2`, shouldErr: false, config: hook.Config{Event: caddy.InstanceStartupEvent, Command: "cmd", Args: []string{"arg1", "arg2"}}},
-		{name: "shutdown", input: `on shutdown cmd arg1 arg2 &`, shouldErr: false, config: hook.Config{Event: caddy.ShutdownEvent, Command: "cmd", Args: []string{"arg1", "arg2", "&"}}},
-		{name: "certrenew", input: `on certrenew cmd arg1 arg2`, shouldErr: false, config: hook.Config{Event: caddy.CertRenewEvent, Command: "cmd", Args: []string{"arg1", "arg2"}}},
+		{name: "startup", input: `on startup cmd arg1 arg2`, shouldErr: false, config: hook.Config{Event: casket.InstanceStartupEvent, Command: "cmd", Args: []string{"arg1", "arg2"}}},
+		{name: "shutdown", input: `on shutdown cmd arg1 arg2 &`, shouldErr: false, config: hook.Config{Event: casket.ShutdownEvent, Command: "cmd", Args: []string{"arg1", "arg2", "&"}}},
+		{name: "certrenew", input: `on certrenew cmd arg1 arg2`, shouldErr: false, config: hook.Config{Event: casket.CertRenewEvent, Command: "cmd", Args: []string{"arg1", "arg2"}}},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			config, err := onParse(caddy.NewTestController("http", test.input))
+			config, err := onParse(casket.NewTestController("http", test.input))
 
 			if err == nil && test.shouldErr {
 				t.Error("Test didn't error, but it should have")

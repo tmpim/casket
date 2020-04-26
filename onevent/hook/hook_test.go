@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/caddyserver/caddy"
+	"github.com/tmpim/casket"
 	"github.com/google/uuid"
 )
 
@@ -25,16 +25,16 @@ func TestHook(t *testing.T) {
 
 	tests := []struct {
 		name            string
-		event           caddy.EventName
+		event           casket.EventName
 		command         string
 		args            []string
 		shouldErr       bool
 		shouldRemoveErr bool
 	}{
-		{name: "blocking", event: caddy.InstanceStartupEvent, command: "mkdir", args: []string{osSensitiveTestDir}, shouldErr: false, shouldRemoveErr: false},
-		{name: "nonBlocking", event: caddy.ShutdownEvent, command: "mkdir", args: []string{osSensitiveTestDir, "&"}, shouldErr: false, shouldRemoveErr: true},
-		{name: "nonBlocking2", event: caddy.ShutdownEvent, command: "echo", args: []string{"&"}, shouldErr: false, shouldRemoveErr: true},
-		{name: "nonExistent", event: caddy.CertRenewEvent, command: strconv.Itoa(int(time.Now().UnixNano())), shouldErr: true, shouldRemoveErr: true},
+		{name: "blocking", event: casket.InstanceStartupEvent, command: "mkdir", args: []string{osSensitiveTestDir}, shouldErr: false, shouldRemoveErr: false},
+		{name: "nonBlocking", event: casket.ShutdownEvent, command: "mkdir", args: []string{osSensitiveTestDir, "&"}, shouldErr: false, shouldRemoveErr: true},
+		{name: "nonBlocking2", event: casket.ShutdownEvent, command: "echo", args: []string{"&"}, shouldErr: false, shouldRemoveErr: true},
+		{name: "nonExistent", event: casket.CertRenewEvent, command: strconv.Itoa(int(time.Now().UnixNano())), shouldErr: true, shouldRemoveErr: true},
 	}
 
 	for _, test := range tests {

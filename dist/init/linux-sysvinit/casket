@@ -1,0 +1,106 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          casket
+# Required-Start:    $local_fs $network $named $time $syslog
+# Required-Stop:     $local_fs $network $named $time $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts the casket web server
+# Description:       starts casket using start-stop-daemon
+### END INIT INFO
+
+# Original Author: Frédéric Galusik (fredg)
+# Maintainer: Daniel van Dorp (djvdorp)
+
+DESC="the casket web server"
+NAME=casket
+DAEMON=/usr/local/bin/casket
+
+DAEMONUSER=www-data
+PIDFILE=/var/run/$NAME.pid
+LOGFILE=/var/log/$NAME.log
+CONFIGFILE=/etc/casket/Casketfile
+
+USERBIND="setcap cap_net_bind_service=+ep"
+STOP_SCHEDULE="${STOP_SCHEDULE:-QUIT/5/TERM/5/KILL/5}"
+CASKETPATH=/etc/ssl/casket
+ULIMIT=8192
+
+test -x $DAEMON || exit 0
+
+# allow overwriting variables
+#   Debian based
+[ -e "/etc/default/casket" ] && . /etc/default/casket
+#   CentOS based
+[ -e "/etc/sysconfig/casket" ] && . /etc/sysconfig/casket
+
+if [ -z "$DAEMONOPTS" ]; then
+    # daemon options
+    DAEMONOPTS="-agree=true -log=$LOGFILE -conf=$CONFIGFILE"
+fi
+
+# Set the CASKETPATH; Let's Encrypt certificates will be written to this directory.
+export CASKETPATH
+
+# Set the ulimits
+ulimit -n ${ULIMIT}
+
+
+start() {
+    $USERBIND $DAEMON
+    touch $LOGFILE && chown $DAEMONUSER $LOGFILE
+    start-stop-daemon --start --quiet --make-pidfile --pidfile $PIDFILE \
+        --background --chuid $DAEMONUSER --oknodo --exec $DAEMON -- $DAEMONOPTS
+}
+
+stop() {
+    start-stop-daemon --stop --quiet --pidfile $PIDFILE --retry=$STOP_SCHEDULE \
+        --name $NAME --oknodo
+    rm -f $PIDFILE
+}
+
+reload() {
+    start-stop-daemon --stop --quiet --signal USR1 --pidfile $PIDFILE \
+        --name $NAME
+}
+
+status() {
+    if [ -f $PIDFILE ]; then
+        if kill -0 $(cat "$PIDFILE"); then
+            echo "$NAME is running"
+        else
+            echo "$NAME process is dead, but pidfile exists"
+        fi
+    else
+        echo "$NAME is not running"
+    fi
+}
+
+case "$1" in
+    start)
+        echo "Starting $NAME"
+        start
+    ;;
+    stop)
+        echo "Stopping $NAME"
+        stop
+    ;;
+    restart)
+        echo "Restarting $NAME"
+        stop
+        start
+    ;;
+    reload)
+        echo "Reloading $NAME configuration"
+        reload
+    ;;
+    status)
+        status
+    ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|reload|status}"
+        exit 2
+    ;;
+esac
+
+exit 0

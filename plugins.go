@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package caddy
+package casket
 
 import (
 	"fmt"
@@ -21,7 +21,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/caddyserver/caddy/caddyfile"
+	"github.com/tmpim/casket/casketfile"
 )
 
 // These are all the registered plugins.
@@ -47,9 +47,9 @@ var (
 	// plugins.
 	parsingCallbacks = make(map[string]map[string][]ParsingCallback)
 
-	// caddyfileLoaders is the list of all Caddyfile loaders
+	// casketfileLoaders is the list of all Casketfile loaders
 	// in registration order.
-	caddyfileLoaders []caddyfileLoader
+	casketfileLoaders []casketfileLoader
 )
 
 // DescribePlugins returns a string describing the registered plugins.
@@ -61,8 +61,8 @@ func DescribePlugins() string {
 		str += "  " + name + "\n"
 	}
 
-	str += "\nCaddyfile loaders:\n"
-	for _, name := range pl["caddyfile_loaders"] {
+	str += "\nCasketfile loaders:\n"
+	for _, name := range pl["casketfile_loaders"] {
 		str += "  " + name + "\n"
 	}
 
@@ -98,12 +98,12 @@ func ListPlugins() map[string][]string {
 		p["server_types"] = append(p["server_types"], name)
 	}
 
-	// caddyfile loaders in registration order
-	for _, loader := range caddyfileLoaders {
-		p["caddyfile_loaders"] = append(p["caddyfile_loaders"], loader.name)
+	// casketfile loaders in registration order
+	for _, loader := range casketfileLoaders {
+		p["casketfile_loaders"] = append(p["casketfile_loaders"], loader.name)
 	}
-	if defaultCaddyfileLoader.name != "" {
-		p["caddyfile_loaders"] = append(p["caddyfile_loaders"], defaultCaddyfileLoader.name)
+	if defaultCasketfileLoader.name != "" {
+		p["casketfile_loaders"] = append(p["casketfile_loaders"], defaultCasketfileLoader.name)
 	}
 
 	// List the event hook plugins
@@ -173,28 +173,28 @@ func (s ServerListener) Addr() net.Addr {
 
 // Context is a type which carries a server type through
 // the load and setup phase; it maintains the state
-// between loading the Caddyfile, then executing its
-// directives, then making the servers for Caddy to
+// between loading the Casketfile, then executing its
+// directives, then making the servers for Casket to
 // manage. Typically, such state involves configuration
 // structs, etc.
 type Context interface {
-	// Called after the Caddyfile is parsed into server
+	// Called after the Casketfile is parsed into server
 	// blocks but before the directives are executed,
 	// this method gives you an opportunity to inspect
 	// the server blocks and prepare for the execution
 	// of directives. Return the server blocks (which
 	// you may modify, if desired) and an error, if any.
 	// The first argument is the name or path to the
-	// configuration file (Caddyfile).
+	// configuration file (Casketfile).
 	//
 	// This function can be a no-op and simply return its
 	// input if there is nothing to do here.
-	InspectServerBlocks(string, []caddyfile.ServerBlock) ([]caddyfile.ServerBlock, error)
+	InspectServerBlocks(string, []casketfile.ServerBlock) ([]casketfile.ServerBlock, error)
 
-	// This is what Caddy calls to make server instances.
+	// This is what Casket calls to make server instances.
 	// By this time, all directives have been executed and,
 	// presumably, the context has enough state to produce
-	// server instances for Caddy to start.
+	// server instances for Casket to start.
 	MakeServers() ([]Server, error)
 }
 
@@ -217,12 +217,12 @@ type ServerType struct {
 
 	// DefaultInput returns a default config input if none
 	// is otherwise loaded. This is optional, but highly
-	// recommended, otherwise a blank Caddyfile will be
+	// recommended, otherwise a blank Casketfile will be
 	// used.
 	DefaultInput func() Input
 
 	// The function that produces a new server type context.
-	// This will be called when a new Caddyfile is being
+	// This will be called when a new Casketfile is being
 	// loaded, parsed, and executed independently of any
 	// startup phases before this one. It's a way to keep
 	// each set of server instances separate and to reduce
@@ -238,7 +238,7 @@ type Plugin struct {
 	ServerType string
 
 	// Action is the plugin's setup function, if associated
-	// with a directive in the Caddyfile.
+	// with a directive in the Casketfile.
 	Action SetupFunc
 }
 
@@ -293,7 +293,7 @@ func RegisterEventHook(name string, hook EventHook) {
 
 // EmitEvent executes the different hooks passing the EventType as an
 // argument. This is a blocking function. Hook developers should
-// use 'go' keyword if they don't want to block Caddy.
+// use 'go' keyword if they don't want to block Casket.
 func EmitEvent(event EventName, info interface{}) {
 	eventHooks.Range(func(k, v interface{}) bool {
 		err := v.(EventHook)(event, info)
@@ -370,21 +370,21 @@ func DirectiveAction(serverType, dir string) (SetupFunc, error) {
 		dir, serverType)
 }
 
-// Loader is a type that can load a Caddyfile.
+// Loader is a type that can load a Casketfile.
 // It is passed the name of the server type.
 // It returns an error only if something went
-// wrong, not simply if there is no Caddyfile
+// wrong, not simply if there is no Casketfile
 // for this loader to load.
 //
-// A Loader should only load the Caddyfile if
+// A Loader should only load the Casketfile if
 // a certain condition or requirement is met,
 // as returning a non-nil Input value along with
 // another Loader will result in an error.
-// In other words, loading the Caddyfile must
+// In other words, loading the Casketfile must
 // be deliberate & deterministic, not haphazard.
 //
-// The exception is the default Caddyfile loader,
-// which will be called only if no other Caddyfile
+// The exception is the default Casketfile loader,
+// which will be called only if no other Casketfile
 // loaders return a non-nil Input. The default
 // loader may always return an Input value.
 type Loader interface {
@@ -395,59 +395,59 @@ type Loader interface {
 // that allows you to use a plain function as a Load() method.
 type LoaderFunc func(serverType string) (Input, error)
 
-// Load loads a Caddyfile.
+// Load loads a Casketfile.
 func (lf LoaderFunc) Load(serverType string) (Input, error) {
 	return lf(serverType)
 }
 
-// RegisterCaddyfileLoader registers loader named name.
-func RegisterCaddyfileLoader(name string, loader Loader) {
-	caddyfileLoaders = append(caddyfileLoaders, caddyfileLoader{name: name, loader: loader})
+// RegisterCasketfileLoader registers loader named name.
+func RegisterCasketfileLoader(name string, loader Loader) {
+	casketfileLoaders = append(casketfileLoaders, casketfileLoader{name: name, loader: loader})
 }
 
-// SetDefaultCaddyfileLoader registers loader by name
-// as the default Caddyfile loader if no others produce
-// a Caddyfile. If another Caddyfile loader has already
+// SetDefaultCasketfileLoader registers loader by name
+// as the default Casketfile loader if no others produce
+// a Casketfile. If another Casketfile loader has already
 // been set as the default, this replaces it.
 //
-// Do not call RegisterCaddyfileLoader on the same
+// Do not call RegisterCasketfileLoader on the same
 // loader; that would be redundant.
-func SetDefaultCaddyfileLoader(name string, loader Loader) {
-	defaultCaddyfileLoader = caddyfileLoader{name: name, loader: loader}
+func SetDefaultCasketfileLoader(name string, loader Loader) {
+	defaultCasketfileLoader = casketfileLoader{name: name, loader: loader}
 }
 
-// loadCaddyfileInput iterates the registered Caddyfile loaders
-// and, if needed, calls the default loader, to load a Caddyfile.
+// loadCasketfileInput iterates the registered Casketfile loaders
+// and, if needed, calls the default loader, to load a Casketfile.
 // It is an error if any of the loaders return an error or if
-// more than one loader returns a Caddyfile.
-func loadCaddyfileInput(serverType string) (Input, error) {
+// more than one loader returns a Casketfile.
+func loadCasketfileInput(serverType string) (Input, error) {
 	var loadedBy string
-	var caddyfileToUse Input
-	for _, l := range caddyfileLoaders {
+	var casketfileToUse Input
+	for _, l := range casketfileLoaders {
 		cdyfile, err := l.loader.Load(serverType)
 		if err != nil {
-			return nil, fmt.Errorf("loading Caddyfile via %s: %v", l.name, err)
+			return nil, fmt.Errorf("loading Casketfile via %s: %v", l.name, err)
 		}
 		if cdyfile != nil {
-			if caddyfileToUse != nil {
-				return nil, fmt.Errorf("Caddyfile loaded multiple times; first by %s, then by %s", loadedBy, l.name)
+			if casketfileToUse != nil {
+				return nil, fmt.Errorf("Casketfile loaded multiple times; first by %s, then by %s", loadedBy, l.name)
 			}
 			loaderUsed = l
-			caddyfileToUse = cdyfile
+			casketfileToUse = cdyfile
 			loadedBy = l.name
 		}
 	}
-	if caddyfileToUse == nil && defaultCaddyfileLoader.loader != nil {
-		cdyfile, err := defaultCaddyfileLoader.loader.Load(serverType)
+	if casketfileToUse == nil && defaultCasketfileLoader.loader != nil {
+		cdyfile, err := defaultCasketfileLoader.loader.Load(serverType)
 		if err != nil {
 			return nil, err
 		}
 		if cdyfile != nil {
-			loaderUsed = defaultCaddyfileLoader
-			caddyfileToUse = cdyfile
+			loaderUsed = defaultCasketfileLoader
+			casketfileToUse = cdyfile
 		}
 	}
-	return caddyfileToUse, nil
+	return casketfileToUse, nil
 }
 
 // OnProcessExit is a list of functions to run when the process
@@ -458,13 +458,13 @@ func loadCaddyfileInput(serverType string) (Input, error) {
 // from init() functions.
 var OnProcessExit []func()
 
-// caddyfileLoader pairs the name of a loader to the loader.
-type caddyfileLoader struct {
+// casketfileLoader pairs the name of a loader to the loader.
+type casketfileLoader struct {
 	name   string
 	loader Loader
 }
 
 var (
-	defaultCaddyfileLoader caddyfileLoader // the default loader if all else fail
-	loaderUsed             caddyfileLoader // the loader that was used (relevant for reloads)
+	defaultCasketfileLoader casketfileLoader // the default loader if all else fail
+	loaderUsed              casketfileLoader // the loader that was used (relevant for reloads)
 )

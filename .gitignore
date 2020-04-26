@@ -12,8 +12,8 @@ error.log
 access.log
 
 /*.conf
-Caddyfile
-!caddyfile/
+Casketfile
+!casketfile/
 
 og_static/
 

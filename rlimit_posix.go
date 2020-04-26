@@ -14,7 +14,7 @@
 
 // +build !windows,!plan9,!nacl,!js
 
-package caddy
+package casket
 
 import (
 	"fmt"

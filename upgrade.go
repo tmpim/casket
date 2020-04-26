@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package caddy
+package casket
 
 import (
 	"encoding/gob"
@@ -25,13 +25,13 @@ import (
 )
 
 func init() {
-	// register CaddyfileInput with gob so it knows into
+	// register CasketfileInput with gob so it knows into
 	// which concrete type to decode an Input interface
-	gob.Register(CaddyfileInput{})
+	gob.Register(CasketfileInput{})
 }
 
 // IsUpgrade returns true if this process is part of an upgrade
-// where a parent caddy process spawned this one to upgrade
+// where a parent casket process spawned this one to upgrade
 // the binary.
 func IsUpgrade() bool {
 	mu.Lock()
@@ -50,8 +50,8 @@ func IsUpgrade() bool {
 func Upgrade() error {
 	log.Println("[INFO] Upgrading")
 
-	// use existing Caddyfile; do not change configuration during upgrade
-	currentCaddyfile, _, err := getCurrentCaddyfile()
+	// use existing Casketfile; do not change configuration during upgrade
+	currentCasketfile, _, err := getCurrentCasketfile()
 	if err != nil {
 		return err
 	}
@@ -63,16 +63,16 @@ func Upgrade() error {
 	// tell the child that it's a restart
 	env := os.Environ()
 	if !IsUpgrade() {
-		env = append(env, "CADDY__UPGRADE=1")
+		env = append(env, "CASKET__UPGRADE=1")
 	}
 
 	// prepare our payload to the child process
 	cdyfileGob := transferGob{
 		ListenerFds: make(map[string]uintptr),
-		Caddyfile:   currentCaddyfile,
+		Casketfile:  currentCasketfile,
 	}
 
-	// prepare a pipe to the fork's stdin so it can get the Caddyfile
+	// prepare a pipe to the fork's stdin so it can get the Casketfile
 	rpipe, wpipe, err := os.Pipe()
 	if err != nil {
 		return err
@@ -142,7 +142,7 @@ func Upgrade() error {
 		}
 	}
 
-	// feed Caddyfile to the child
+	// feed Casketfile to the child
 	err = gob.NewEncoder(wpipe).Encode(cdyfileGob)
 	if err != nil {
 		return err
@@ -168,9 +168,9 @@ func Upgrade() error {
 	return Stop()
 }
 
-// getCurrentCaddyfile gets the Caddyfile used by the
+// getCurrentCasketfile gets the Casketfile used by the
 // current (first) Instance and returns both of them.
-func getCurrentCaddyfile() (Input, *Instance, error) {
+func getCurrentCasketfile() (Input, *Instance, error) {
 	instancesMu.Lock()
 	if len(instances) == 0 {
 		instancesMu.Unlock()
@@ -179,12 +179,12 @@ func getCurrentCaddyfile() (Input, *Instance, error) {
 	inst := instances[0]
 	instancesMu.Unlock()
 
-	currentCaddyfile := inst.caddyfileInput
-	if currentCaddyfile == nil {
+	currentCasketfile := inst.casketfileInput
+	if currentCasketfile == nil {
 		// hmm, did spawning process forget to close stdin? Anyhow, this is unusual.
-		return nil, inst, fmt.Errorf("no Caddyfile to reload (was stdin left open?)")
+		return nil, inst, fmt.Errorf("no Casketfile to reload (was stdin left open?)")
 	}
-	return currentCaddyfile, inst, nil
+	return currentCasketfile, inst, nil
 }
 
 // signalSuccessToParent tells the parent our status using pipe at index 3.
@@ -209,7 +209,7 @@ func signalSuccessToParent() {
 // signaled once; doing so more than once breaks whatever socket is
 // at fd 4 (TODO: the reason for this is still unclear - to reproduce,
 // call Stop() and Start() in succession at least once after a
-// restart, then try loading first host of Caddyfile in the browser
+// restart, then try loading first host of Casketfile in the browser
 // - this was pre-v0.9; this code and godoc is borrowed from the
 // implementation then, but I'm not sure if it's been fixed yet, as
 // of v0.10.7). Do not use this directly; call signalSuccessToParent
@@ -224,9 +224,9 @@ var loadedGob transferGob
 
 // transferGob maps bind address to index of the file descriptor
 // in the Files array passed to the child process. It also contains
-// the Caddyfile contents and any other state needed by the new process.
+// the Casketfile contents and any other state needed by the new process.
 // Used only during graceful upgrades.
 type transferGob struct {
 	ListenerFds map[string]uintptr
-	Caddyfile   Input
+	Casketfile  Input
 }

@@ -1,33 +1,33 @@
-CADDY 1.0.5
+CASKET 1.0.5
 
 Website
-	https://caddyserver.com
+	https://casketserver.com
 
 Community Forum
-	https://caddy.community
+	https://casket.community
 
 Twitter
-	@caddyserver
+	@casketserver
 
 Source Code
-	https://github.com/caddyserver/caddy
-	https://github.com/caddyserver
+	https://github.com/tmpim/casket
+	https://github.com/casketserver
 
 
-For instructions on using Caddy, please see the docs on the
+For instructions on using Casket, please see the docs on the
 website. For a list of what's new in this version, see
 CHANGES.txt.
 
 For a good time, follow @mholt6 on Twitter.
 
-Want to get involved with Caddy's development? We love to have
+Want to get involved with Casket's development? We love to have
 contributions! Please file an issue on GitHub to discuss a
 change or fix you'd like to make, then submit a pull request
 and we'll review it! Your contributions will reach millions
-of people who connect to sites served by Caddy.
+of people who connect to sites served by Casket.
 
-Extend Caddy by developing a plugin for it! Instructions on
-the project wiki: https://github.com/caddyserver/caddy/wiki
+Extend Casket by developing a plugin for it! Instructions on
+the project wiki: https://github.com/tmpim/casket/wiki
 
 And thanks - you're awesome!
 

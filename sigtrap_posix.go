@@ -14,7 +14,7 @@
 
 // +build !windows,!plan9,!nacl,!js
 
-package caddy
+package casket
 
 import (
 	"log"
@@ -22,7 +22,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/caddyserver/caddy/telemetry"
+	"github.com/tmpim/casket/telemetry"
 )
 
 // trapSignalsPosix captures POSIX-only signals.
@@ -61,26 +61,26 @@ func trapSignalsPosix() {
 				log.Println("[INFO] SIGUSR1: Reloading")
 				go telemetry.AppendUnique("sigtrap", "SIGUSR1")
 
-				// Start with the existing Caddyfile
-				caddyfileToUse, inst, err := getCurrentCaddyfile()
+				// Start with the existing Casketfile
+				casketfileToUse, inst, err := getCurrentCasketfile()
 				if err != nil {
 					log.Printf("[ERROR] SIGUSR1: %v", err)
 					continue
 				}
 				if loaderUsed.loader == nil {
 					// This also should never happen
-					log.Println("[ERROR] SIGUSR1: no Caddyfile loader with which to reload Caddyfile")
+					log.Println("[ERROR] SIGUSR1: no Casketfile loader with which to reload Casketfile")
 					continue
 				}
 
-				// Load the updated Caddyfile
-				newCaddyfile, err := loaderUsed.loader.Load(inst.serverType)
+				// Load the updated Casketfile
+				newCasketfile, err := loaderUsed.loader.Load(inst.serverType)
 				if err != nil {
-					log.Printf("[ERROR] SIGUSR1: loading updated Caddyfile: %v", err)
+					log.Printf("[ERROR] SIGUSR1: loading updated Casketfile: %v", err)
 					continue
 				}
-				if newCaddyfile != nil {
-					caddyfileToUse = newCaddyfile
+				if newCasketfile != nil {
+					casketfileToUse = newCasketfile
 				}
 
 				// Backup old event hooks
@@ -91,7 +91,7 @@ func trapSignalsPosix() {
 
 				// Kick off the restart; our work is done
 				EmitEvent(InstanceRestartEvent, nil)
-				_, err = inst.Restart(caddyfileToUse)
+				_, err = inst.Restart(casketfileToUse)
 				if err != nil {
 					restoreEventHooks(oldEventHooks)
 
