@@ -33,9 +33,9 @@ import (
 
 	"os"
 
-	"github.com/tmpim/casket/caskettls"
 	"github.com/mholt/certmagic"
 	"github.com/russross/blackfriday"
+	"github.com/tmpim/casket/caskettls"
 )
 
 // This file contains the context and functions available for

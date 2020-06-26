@@ -21,8 +21,8 @@ import (
 	"net"
 	"strings"
 
-	"github.com/tmpim/casket/telemetry"
 	"github.com/mholt/certmagic"
+	"github.com/tmpim/casket/telemetry"
 )
 
 // configGroup is a type that keys configs by their hostname

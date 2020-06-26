@@ -29,8 +29,8 @@ import (
 
 	"github.com/mholt/certmagic"
 	"github.com/tmpim/casket"
-	"github.com/tmpim/casket/caskethttp/staticfiles"
 	"github.com/tmpim/casket/casketfile"
+	"github.com/tmpim/casket/caskethttp/staticfiles"
 	"github.com/tmpim/casket/caskettls"
 	"github.com/tmpim/casket/telemetry"
 )
@@ -662,6 +662,7 @@ var directives = []string{
 	"s3browser", // github.com/techknowlogick/casket-s3browser
 	"nobots",    // github.com/Xumeiquer/nobots
 	"mime",
+	"chuieauth",
 	"login",      // github.com/tarent/loginsrv/casket
 	"reauth",     // github.com/freman/casket-reauth
 	"extauth",    // github.com/BTBurke/casket-extauth

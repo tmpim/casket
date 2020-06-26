@@ -21,11 +21,11 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/tmpim/casket"
 	"github.com/go-acme/lego/v3/certcrypto"
 	"github.com/go-acme/lego/v3/challenge/tlsalpn01"
 	"github.com/klauspost/cpuid"
 	"github.com/mholt/certmagic"
+	"github.com/tmpim/casket"
 )
 
 // Config describes how TLS should be configured and used.

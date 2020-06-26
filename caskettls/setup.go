@@ -29,9 +29,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/mholt/certmagic"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/telemetry"
-	"github.com/mholt/certmagic"
 )
 
 func init() {

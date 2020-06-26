@@ -45,7 +45,7 @@ import (
 func init() {
 	casket.TrapSignals()
 
-	flag.BoolVar(&certmagic.Default.Agreed, "agree", false, "Agree to the CA's Subscriber Agreement")
+	flag.BoolVar(&certmagic.Default.Agreed, "agree", true, "Agree to the CA's Subscriber Agreement")
 	flag.StringVar(&certmagic.Default.CA, "ca", certmagic.Default.CA, "URL to certificate authority's ACME server directory")
 	flag.StringVar(&certmagic.Default.DefaultServerName, "default-sni", certmagic.Default.DefaultServerName, "If a ClientHello ServerName is empty, use this ServerName to choose a TLS certificate")
 	flag.BoolVar(&certmagic.Default.DisableHTTPChallenge, "disable-http-challenge", certmagic.Default.DisableHTTPChallenge, "Disable the ACME HTTP challenge")
@@ -305,7 +305,7 @@ func getBuildModule() *debug.Module {
 			}
 		}
 	}
-	return &debug.Module{Version: "unknown"}
+	return &bi.Main
 }
 
 func checkJSONCasketfile() {

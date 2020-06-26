@@ -20,9 +20,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/mholt/certmagic"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/caskettls"
-	"github.com/mholt/certmagic"
 )
 
 func activateHTTPS(cctx casket.Context) error {
