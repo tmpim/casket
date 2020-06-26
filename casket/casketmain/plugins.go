@@ -1,0 +1,28 @@
+package casketmain
+
+import (
+	_ "github.com/tmpim/casket-plugins/chuieauth"
+	_ "github.com/tmpim/casket-plugins/cors/casket"
+	_ "github.com/tmpim/casket-plugins/prometheus"
+	_ "github.com/tmpim/casket-plugins/rate-limit"
+	_ "github.com/tmpim/casket-plugins/realip"
+	_ "github.com/tmpim/dnsproviders/azure"
+	_ "github.com/tmpim/dnsproviders/cloudflare"
+	_ "github.com/tmpim/dnsproviders/digitalocean"
+	_ "github.com/tmpim/dnsproviders/dnsimple"
+	_ "github.com/tmpim/dnsproviders/duckdns"
+	_ "github.com/tmpim/dnsproviders/dyn"
+	_ "github.com/tmpim/dnsproviders/godaddy"
+	_ "github.com/tmpim/dnsproviders/googlecloud"
+	_ "github.com/tmpim/dnsproviders/httpreq"
+	_ "github.com/tmpim/dnsproviders/lightsail"
+	_ "github.com/tmpim/dnsproviders/linode"
+	_ "github.com/tmpim/dnsproviders/linodev4"
+	_ "github.com/tmpim/dnsproviders/namecheap"
+	_ "github.com/tmpim/dnsproviders/namedotcom"
+	_ "github.com/tmpim/dnsproviders/ovh"
+	_ "github.com/tmpim/dnsproviders/rackspace"
+	_ "github.com/tmpim/dnsproviders/rfc2136"
+	_ "github.com/tmpim/dnsproviders/route53"
+	_ "github.com/tmpim/dnsproviders/vultr"
+)

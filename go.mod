@@ -17,6 +17,8 @@ require (
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/naoina/toml v0.1.1
 	github.com/russross/blackfriday v0.0.0-20170610170232-067529f716f4
+	github.com/tmpim/casket-plugins v0.0.0-20200626044700-d16deead416a
+	github.com/tmpim/dnsproviders v0.4.1-0.20200426010140-ffa99ed51cb7
 	golang.org/x/net v0.0.0-20191027093000-83d349e8ac1a
 	golang.org/x/sys v0.0.0-20191026070338-33540a1f6037 // indirect
 	gopkg.in/mcuadros/go-syslog.v2 v2.2.1
