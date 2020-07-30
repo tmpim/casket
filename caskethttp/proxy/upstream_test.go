@@ -127,7 +127,7 @@ func TestSelect(t *testing.T) {
 func TestRegisterPolicy(t *testing.T) {
 	name := "custom"
 	customPolicy := &customPolicy{}
-	RegisterPolicy(name, func(string) Policy { return customPolicy })
+	RegisterPolicy(name, func([]string) Policy { return customPolicy })
 	if _, ok := supportedPolicies[name]; !ok {
 		t.Error("Expected supportedPolicies to have a custom policy.")
 	}
