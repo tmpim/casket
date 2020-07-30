@@ -25,15 +25,15 @@ func TestAssetsPath(t *testing.T) {
 		t.Errorf("Expected path to be a .casket folder, got: %v", actual)
 	}
 
-	err := os.Setenv("CASKETFILE", "testpath")
+	err := os.Setenv("CASKETPATH", "testpath")
 	if err != nil {
-		t.Error("Could not set CASKETFILE")
+		t.Error("Could not set CASKETPATH")
 	}
 	if actual, expected := AssetsPath(), "testpath"; actual != expected {
 		t.Errorf("Expected path to be %v, got: %v", expected, actual)
 	}
-	err = os.Setenv("CASKETFILE", "")
+	err = os.Setenv("CASKETPATH", "")
 	if err != nil {
-		t.Error("Could not set CASKETFILE")
+		t.Error("Could not set CASKETPATH")
 	}
 }

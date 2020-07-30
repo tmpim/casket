@@ -23,9 +23,9 @@ import (
 	"testing"
 	"text/template"
 
+	"github.com/russross/blackfriday"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/caskethttp/httpserver"
-	"github.com/russross/blackfriday"
 )
 
 func TestMarkdown(t *testing.T) {
@@ -147,7 +147,7 @@ Doc.var_bool true
 	<head>
 		<title>Markdown test 2</title>
 		<meta charset="utf-8">
-
+		
 		<link rel="stylesheet" href="/resources/css/log.css">
 		<link rel="stylesheet" href="/resources/css/default.css">
 		<script src="/resources/js/log.js"></script>
