@@ -36,12 +36,12 @@ import (
 
 	"crypto/tls"
 
-	"github.com/tmpim/casket/caskethttp/httpserver"
 	"github.com/tmpim/casket/casketfile"
+	"github.com/tmpim/casket/caskethttp/httpserver"
 )
 
 var (
-	supportedPolicies = make(map[string]func(string) Policy)
+	supportedPolicies = make(map[string]func([]string) Policy)
 )
 
 type staticUpstream struct {
@@ -346,11 +346,11 @@ func parseBlock(c *casketfile.Dispenser, u *staticUpstream, hasSrv bool) error {
 		if !ok {
 			return c.ArgErr()
 		}
-		arg := ""
-		if c.NextArg() {
-			arg = c.Val()
+		var args []string
+		for c.NextArg() {
+			args = append(args, c.Val())
 		}
-		u.Policy = policyCreateFunc(arg)
+		u.Policy = policyCreateFunc(args)
 	case "fallback_delay":
 		if !c.NextArg() {
 			return c.ArgErr()
@@ -780,7 +780,7 @@ func (u *staticUpstream) Stop() error {
 }
 
 // RegisterPolicy adds a custom policy to the proxy.
-func RegisterPolicy(name string, policy func(string) Policy) {
+func RegisterPolicy(name string, policy func([]string) Policy) {
 	supportedPolicies[name] = policy
 }
 
