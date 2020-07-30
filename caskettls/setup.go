@@ -235,7 +235,7 @@ func setupTLS(c *casket.Controller) error {
 				onDemand = true
 			case "dns":
 				args := c.RemainingArgs()
-				if len(args) != 1 {
+				if len(args) < 1 {
 					return c.ArgErr()
 				}
 				// TODO: we can get rid of DNS provider plugins with this one line
@@ -250,7 +250,7 @@ func setupTLS(c *casket.Controller) error {
 				if !ok {
 					return c.Errf("Unknown DNS provider by name '%s'", dnsProvName)
 				}
-				dnsProv, err := dnsProvConstructor()
+				dnsProv, err := dnsProvConstructor(args[1:]...)
 				if err != nil {
 					return c.Errf("Setting up DNS provider '%s': %v", dnsProvName, err)
 				}
