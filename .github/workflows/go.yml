@@ -1,7 +1,8 @@
 name: Go
 
 on:
-  push: [ master ]
+  push:
+    - master
   pull_request:
 
 jobs:
