@@ -1,25 +1,26 @@
-name: Release Binaries
+name: Release
 
-on: 
-  release:
-    types: [created]
+on:
+  push:
+    tags:
+      - v*
 
 jobs:
-  releases-matrix:
-    name: Release Go Binary
+  goreleaser:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # build and publish in parallel: linux/386, linux/amd64, windows/386, windows/amd64, darwin/386, darwin/amd64 
-        goos: [linux, windows, darwin]
-        goarch: ["386", amd64]
     steps:
-    - uses: actions/checkout@v2
-    - uses: wangyoucao577/go-release-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        goos: ${{ matrix.goos }}
-        goarch: ${{ matrix.goarch }}
-        goversion: "https://dl.google.com/go/go1.14.6.linux-amd64.tar.gz"
-        project_path: "./caddy"
-        binary_name: "caddy"
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: latest
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
