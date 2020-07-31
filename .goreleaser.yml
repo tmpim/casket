@@ -1,30 +1,31 @@
-builds:
-  # You can have multiple builds defined as a yaml list
-  -
-    # ID of the build.
-    # Defaults to the project name.
-    id: "casket"
-
-    # Path to main.go file or main package.
-    # Default is `.`.
-    main: ./casket
-
-    # Binary name.
-    # Can be a path (e.g. `bin/app`) to wrap the binary in a directory.
-    # Default is the name of the project directory.
+sbuilds:
+  - id: "casket"
+    main: main.go
+    dir: ./casket
     binary: casket
-
-    # GOOS list to build for.
-    # For more info refer to: https://golang.org/doc/install/source#environment
-    # Defaults are darwin and linux.
     goos:
       - linux
       - darwin
       - windows
-
-    # GOARCH to build for.
-    # For more info refer to: https://golang.org/doc/install/source#environment
-    # Defaults are 386 and amd64.
     goarch:
-      - '386'
+      - "386"
       - amd64
+    hooks:
+      pre:
+       - cmd: go mod init casket
+         dir: "{{ dir .Path }}"
+
+
+archives:
+  - format_overrides:
+      - goos: windows
+        format: zip
+checksum:
+  algorithm: sha256
+
+release:
+  github:
+    owner: tmpim
+    name: casket
+  draft: true
+  prerelease: auto

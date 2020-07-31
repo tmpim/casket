@@ -17,6 +17,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Go module init
+        run: |
+          cd casket
+          go mod init casket
+          cd ..
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
