@@ -1,4 +1,4 @@
-sbuilds:
+builds:
   - id: "casket"
     main: main.go
     dir: ./casket
