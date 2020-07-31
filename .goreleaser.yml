@@ -10,11 +10,6 @@ builds:
     goarch:
       - "386"
       - amd64
-    hooks:
-      pre:
-       - cmd: go mod init casket
-         dir: "{{ dir .Path }}"
-
 
 archives:
   - format_overrides:
