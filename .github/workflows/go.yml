@@ -1,7 +1,7 @@
 name: Go
 
 on:
-  push:
+  push: [ master ]
   pull_request:
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
       run: go get -v -t ./...
 
     - name: Build
-      run: go build -v ./casket
+      run: go build -v ./...
 
     - name: Add quic.clemente.io to /etc/hosts
       run: echo "127.0.0.1 quic.clemente.io" | sudo tee -a /etc/hosts
