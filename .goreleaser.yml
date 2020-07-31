@@ -1,0 +1,32 @@
+builds:
+  - id: "casket"
+    main: main.go
+    dir: ./casket
+    binary: casket
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - "386"
+      - amd64
+    ignore:
+      - goos: darwin
+        goarch: 386
+    hooks:
+      pre:
+       - go mod edit -require=github.com/tmpim/casket@{{.Tag}} casket/go.mod
+
+archives:
+  - format_overrides:
+      - goos: windows
+        format: zip
+checksum:
+  algorithm: sha256
+
+release:
+  github:
+    owner: tmpim
+    name: casket
+  draft: true
+  prerelease: auto

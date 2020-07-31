@@ -7,6 +7,8 @@ Vagrantfile
 
 dist/builds/
 dist/release/
+dist/casket_*
+dist/config.yaml
 
 error.log
 access.log
@@ -14,6 +16,8 @@ access.log
 /*.conf
 Casketfile
 !casketfile/
+casket/go.mod
+casket/go.sum
 
 og_static/
 
