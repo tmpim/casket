@@ -10,6 +10,12 @@ builds:
     goarch:
       - "386"
       - amd64
+    ignore:
+      - goos: darwin
+        goarch: 386
+    hooks:
+      pre:
+       - go mod edit -require=github.com/tmpim/casket@{{.Tag}} casket/go.mod
 
 archives:
   - format_overrides:
