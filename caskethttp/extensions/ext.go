@@ -23,7 +23,6 @@ package extensions
 import (
 	"net/http"
 	"os"
-	"path"
 	"strings"
 
 	"github.com/tmpim/casket/caskethttp/httpserver"
@@ -45,12 +44,15 @@ type Ext struct {
 // ServeHTTP implements the httpserver.Handler interface.
 func (e Ext) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	urlpath := strings.TrimSuffix(r.URL.Path, "/")
-	if len(r.URL.Path) > 0 && path.Ext(urlpath) == "" && r.URL.Path[len(r.URL.Path)-1] != '/' {
-		for _, ext := range e.Extensions {
-			_, err := os.Stat(httpserver.SafePath(e.Root, urlpath) + ext)
-			if err == nil {
-				r.URL.Path = urlpath + ext
-				break
+	if len(e.Extensions) > 0 && len(r.URL.Path) > 0 && r.URL.Path[len(r.URL.Path)-1] != '/' {
+		_, err := os.Stat(httpserver.SafePath(e.Root, urlpath))
+		if err != nil {
+			for _, ext := range e.Extensions {
+				_, err := os.Stat(httpserver.SafePath(e.Root, urlpath) + ext)
+				if err == nil {
+					r.URL.Path = urlpath + ext
+					break
+				}
 			}
 		}
 	}
