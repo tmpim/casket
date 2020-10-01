@@ -14,7 +14,7 @@ require (
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/klauspost/cpuid v1.2.5
 	github.com/lucas-clemente/quic-go v0.13.1
-	github.com/tmpim/certmagic v0.8.4
+	github.com/tmpim/certmagic v0.12.2
 	github.com/miekg/dns v1.1.30 // indirect
 	github.com/naoina/toml v0.1.1
 	github.com/russross/blackfriday v0.0.0-20170610170232-067529f716f4
