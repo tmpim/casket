@@ -17,7 +17,7 @@ package caskettls
 import (
 	"testing"
 
-	"github.com/mholt/certmagic"
+	"github.com/tmpim/certmagic"
 )
 
 type holder struct {

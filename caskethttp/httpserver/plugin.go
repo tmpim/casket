@@ -27,12 +27,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mholt/certmagic"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/casketfile"
 	"github.com/tmpim/casket/caskethttp/staticfiles"
 	"github.com/tmpim/casket/caskettls"
 	"github.com/tmpim/casket/telemetry"
+	"github.com/tmpim/certmagic"
 )
 
 const serverType = "http"

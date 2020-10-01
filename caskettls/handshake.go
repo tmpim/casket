@@ -21,7 +21,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/mholt/certmagic"
+	"github.com/tmpim/certmagic"
 	"github.com/tmpim/casket/telemetry"
 )
 

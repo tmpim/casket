@@ -23,7 +23,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/mholt/certmagic"
+	"github.com/tmpim/certmagic"
 	"github.com/tmpim/casket/caskettls"
 )
 
