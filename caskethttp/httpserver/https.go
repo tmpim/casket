@@ -20,7 +20,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/mholt/certmagic"
+	"github.com/tmpim/certmagic"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/caskettls"
 )

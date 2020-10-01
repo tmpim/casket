@@ -31,11 +31,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/klauspost/cpuid"
-	"github.com/mholt/certmagic"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/casketfile"
 	"github.com/tmpim/casket/caskettls"
 	"github.com/tmpim/casket/telemetry"
+	"github.com/tmpim/certmagic"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 
 	_ "github.com/tmpim/casket/caskethttp" // plug in the HTTP server type

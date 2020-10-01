@@ -30,7 +30,7 @@ package caskettls
 
 import (
 	"github.com/go-acme/lego/v3/challenge"
-	"github.com/mholt/certmagic"
+	"github.com/tmpim/certmagic"
 	"github.com/tmpim/casket"
 )
 

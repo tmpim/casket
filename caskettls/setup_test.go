@@ -22,7 +22,7 @@ import (
 	"testing"
 
 	"github.com/go-acme/lego/v3/certcrypto"
-	"github.com/mholt/certmagic"
+	"github.com/tmpim/certmagic"
 	"github.com/tmpim/casket"
 )
 
