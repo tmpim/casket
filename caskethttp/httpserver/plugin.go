@@ -662,6 +662,7 @@ var directives = []string{
 	"s3browser", // github.com/techknowlogick/casket-s3browser
 	"nobots",    // github.com/Xumeiquer/nobots
 	"mime",
+	"tmpauth",
 	"chuieauth",
 	"login",      // github.com/tarent/loginsrv/casket
 	"reauth",     // github.com/freman/casket-reauth

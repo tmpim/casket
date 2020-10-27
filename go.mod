@@ -14,11 +14,11 @@ require (
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/klauspost/cpuid v1.2.5
 	github.com/lucas-clemente/quic-go v0.13.1
-	github.com/tmpim/certmagic v0.12.2
 	github.com/miekg/dns v1.1.30 // indirect
 	github.com/naoina/toml v0.1.1
 	github.com/russross/blackfriday v0.0.0-20170610170232-067529f716f4
-	github.com/tmpim/casket-plugins v0.0.0-20200626073009-9f63e7c3a8cb
+	github.com/tmpim/casket-plugins v0.0.0-20201027194054-66e7e9fc2b38
+	github.com/tmpim/certmagic v0.12.2
 	github.com/tmpim/dnsproviders v0.4.1-0.20200426010140-ffa99ed51cb7
 	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de // indirect
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
