@@ -17,7 +17,7 @@ require (
 	github.com/miekg/dns v1.1.30 // indirect
 	github.com/naoina/toml v0.1.1
 	github.com/russross/blackfriday v0.0.0-20170610170232-067529f716f4
-	github.com/tmpim/casket-plugins v0.0.0-20201028220334-8148e2525ece
+	github.com/tmpim/casket-plugins v0.0.0-20201028230123-3a8fddcea93b
 	github.com/tmpim/certmagic v0.12.2
 	github.com/tmpim/dnsproviders v0.4.1-0.20200426010140-ffa99ed51cb7
 	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de // indirect
