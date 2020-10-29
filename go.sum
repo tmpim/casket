@@ -338,6 +338,8 @@ github.com/tmpim/casket-plugins v0.0.0-20201029065308-7efb9db0b140 h1:aGmT5eixK3
 github.com/tmpim/casket-plugins v0.0.0-20201029065308-7efb9db0b140/go.mod h1:pY+Sj0ESnhB4i12cAv9tC9UgS4CrR35SuOKLaREBG98=
 github.com/tmpim/casket-plugins v0.0.0-20201029065952-be9f1e849928 h1:2xiAbyTmc1j7jXq3SDSohqX130+73rWuqctMTkmo7g4=
 github.com/tmpim/casket-plugins v0.0.0-20201029065952-be9f1e849928/go.mod h1:pY+Sj0ESnhB4i12cAv9tC9UgS4CrR35SuOKLaREBG98=
+github.com/tmpim/casket-plugins v0.0.0-20201029070525-9bc11f33292e h1:u3Obd1qJohGUZ7fhDxWdPfW+XRlPKkP3djvOg5zFDu8=
+github.com/tmpim/casket-plugins v0.0.0-20201029070525-9bc11f33292e/go.mod h1:pY+Sj0ESnhB4i12cAv9tC9UgS4CrR35SuOKLaREBG98=
 github.com/tmpim/certmagic v0.12.2 h1:31hh2/wsFJ23m9H0n92CLzKDeN/SZIbglSntVodXP4w=
 github.com/tmpim/certmagic v0.12.2/go.mod h1:C0x/TNbxD8HkAX35zzc6OtkZiyBSVN1fDW9EwLhtA6E=
 github.com/tmpim/dnsproviders v0.4.1-0.20200426010140-ffa99ed51cb7 h1:AdrvlSHBwcrzHJVPz6xkL81MBqmhladmBng18/eTc8Y=
