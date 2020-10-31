@@ -346,6 +346,12 @@ github.com/tmpim/casket-plugins v0.0.0-20201029163330-8a51a1323c36 h1:TfnlkAGuw3
 github.com/tmpim/casket-plugins v0.0.0-20201029163330-8a51a1323c36/go.mod h1:pY+Sj0ESnhB4i12cAv9tC9UgS4CrR35SuOKLaREBG98=
 github.com/tmpim/casket-plugins v0.0.0-20201029164344-57c3a5e6daa0 h1:Tj3eQQik8/Lh2c8JYanUcQbNi8mGHczYMpqoF4siSm4=
 github.com/tmpim/casket-plugins v0.0.0-20201029164344-57c3a5e6daa0/go.mod h1:pY+Sj0ESnhB4i12cAv9tC9UgS4CrR35SuOKLaREBG98=
+github.com/tmpim/casket-plugins v0.0.0-20201031040317-b06aabc57a51 h1:AEpIskJyTt3FXqEZ1fcnCte943w0MepovM5XsopJmuQ=
+github.com/tmpim/casket-plugins v0.0.0-20201031040317-b06aabc57a51/go.mod h1:pY+Sj0ESnhB4i12cAv9tC9UgS4CrR35SuOKLaREBG98=
+github.com/tmpim/casket-plugins v0.0.0-20201031040556-818e9c072a05 h1:plzjjRYniWAEsOloyEZtzmCxHXdYykwa8cGcH63jp5o=
+github.com/tmpim/casket-plugins v0.0.0-20201031040556-818e9c072a05/go.mod h1:pY+Sj0ESnhB4i12cAv9tC9UgS4CrR35SuOKLaREBG98=
+github.com/tmpim/casket-plugins v0.0.0-20201031044855-782bda8fd9bc h1:eZeZzS99tpn/ulEFa4BkGYkKPqY1jRejTTlF6ZWLnGk=
+github.com/tmpim/casket-plugins v0.0.0-20201031044855-782bda8fd9bc/go.mod h1:pY+Sj0ESnhB4i12cAv9tC9UgS4CrR35SuOKLaREBG98=
 github.com/tmpim/certmagic v0.12.2 h1:31hh2/wsFJ23m9H0n92CLzKDeN/SZIbglSntVodXP4w=
 github.com/tmpim/certmagic v0.12.2/go.mod h1:C0x/TNbxD8HkAX35zzc6OtkZiyBSVN1fDW9EwLhtA6E=
 github.com/tmpim/dnsproviders v0.4.1-0.20200426010140-ffa99ed51cb7 h1:AdrvlSHBwcrzHJVPz6xkL81MBqmhladmBng18/eTc8Y=
