@@ -186,6 +186,7 @@ github.com/grpc-ecosystem/grpc-gateway v1.8.5/go.mod h1:vNeuVxBJEsws4ogUvrchl83t
 github.com/grpc-ecosystem/grpc-gateway v1.9.0 h1:bM6ZAFZmc/wPFaRDi0d5L7hGEZEx/2u+Tmr2evNHDiI=
 github.com/grpc-ecosystem/grpc-gateway v1.9.0/go.mod h1:vNeuVxBJEsws4ogUvrchl83t/GYV9WGTSLVdBhOQFDY=
 github.com/h2non/parth v0.0.0-20190131123155-b4df798d6542/go.mod h1:Ow0tF8D4Kplbc8s8sSb3V2oUCygFHVp8gC3Dn6U4MNI=
+github.com/hacdias/webdav/v3 v3.1.2 h1:xJszu2mHjMOEIK8j2E++trx2FebN7Rci4H0wnStNlVo=
 github.com/hacdias/webdav/v3 v3.1.2/go.mod h1:jpAvxEMQfAIFi00A+i7DX0Jo87LCqFgnhA3NuiXhvVo=
 github.com/hailocab/go-hostpool v0.0.0-20160125115350-e80d13ce29ed h1:5upAirOpQc1Q53c0bnx2ufif5kANL7bfZWcc6VJWJd8=
 github.com/hailocab/go-hostpool v0.0.0-20160125115350-e80d13ce29ed/go.mod h1:tMWxXQ9wFIaZeTI9F+hmhFiGpFmhOHzyShyFUhRm0H4=
@@ -389,6 +390,8 @@ github.com/tmpim/casket-plugins v0.0.0-20201204000812-5a9a1ecf49c6 h1:35nqV/ckAo
 github.com/tmpim/casket-plugins v0.0.0-20201204000812-5a9a1ecf49c6/go.mod h1:IkELpz86FRwR7/9XXpNCFJ2t3UkpBEDqeGV81nuRMAE=
 github.com/tmpim/casket-plugins v0.0.0-20201204001304-4b8834fd5ea0 h1:AaoVM+37nVsaFFHHt3JK467lMfssf0WxCO1RmeeDPM0=
 github.com/tmpim/casket-plugins v0.0.0-20201204001304-4b8834fd5ea0/go.mod h1:IkELpz86FRwR7/9XXpNCFJ2t3UkpBEDqeGV81nuRMAE=
+github.com/tmpim/casket-plugins v0.0.0-20201204001728-c1b92f17e053 h1:8K3JxH8FohkRdsbwBovHbL6TiITMFvXLl8FXfiunJc4=
+github.com/tmpim/casket-plugins v0.0.0-20201204001728-c1b92f17e053/go.mod h1:IkELpz86FRwR7/9XXpNCFJ2t3UkpBEDqeGV81nuRMAE=
 github.com/tmpim/certmagic v0.12.2 h1:31hh2/wsFJ23m9H0n92CLzKDeN/SZIbglSntVodXP4w=
 github.com/tmpim/certmagic v0.12.2/go.mod h1:C0x/TNbxD8HkAX35zzc6OtkZiyBSVN1fDW9EwLhtA6E=
 github.com/tmpim/dnsproviders v0.4.1-0.20200426010140-ffa99ed51cb7 h1:AdrvlSHBwcrzHJVPz6xkL81MBqmhladmBng18/eTc8Y=
