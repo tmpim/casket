@@ -16,13 +16,13 @@ require (
 	github.com/lucas-clemente/quic-go v0.13.1
 	github.com/miekg/dns v1.1.30 // indirect
 	github.com/naoina/toml v0.1.1
-	github.com/russross/blackfriday v0.0.0-20170610170232-067529f716f4
-	github.com/tmpim/casket-plugins v0.0.0-20201102004724-5966cfb53fcb
+	github.com/russross/blackfriday v1.5.2
+	github.com/tmpim/casket-plugins v0.0.0-20201204001304-4b8834fd5ea0
 	github.com/tmpim/certmagic v0.12.2
 	github.com/tmpim/dnsproviders v0.4.1-0.20200426010140-ffa99ed51cb7
 	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de // indirect
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
 	gopkg.in/mcuadros/go-syslog.v2 v2.2.1
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
-	gopkg.in/yaml.v2 v2.2.2
+	gopkg.in/yaml.v2 v2.2.5
 )

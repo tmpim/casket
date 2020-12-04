@@ -3,10 +3,12 @@ package casketmain
 import (
 	_ "github.com/tmpim/casket-plugins/chuieauth"
 	_ "github.com/tmpim/casket-plugins/cors/casket"
+	_ "github.com/tmpim/casket-plugins/ipfilter"
 	_ "github.com/tmpim/casket-plugins/prometheus"
 	_ "github.com/tmpim/casket-plugins/rate-limit"
 	_ "github.com/tmpim/casket-plugins/realip"
 	_ "github.com/tmpim/casket-plugins/tmpauth"
+	_ "github.com/tmpim/casket-plugins/webdav"
 	_ "github.com/tmpim/dnsproviders/azure"
 	_ "github.com/tmpim/dnsproviders/cloudflare"
 	_ "github.com/tmpim/dnsproviders/digitalocean"
