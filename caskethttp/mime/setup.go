@@ -62,6 +62,7 @@ func mimeParse(c *casket.Controller) (Config, error) {
 		case 1:
 			if args[0] == "ext_defaults" {
 				config.UseDefaults = true
+				break
 			}
 
 			return config, c.ArgErr()
@@ -70,6 +71,7 @@ func mimeParse(c *casket.Controller) (Config, error) {
 				ext := c.Val()
 				if ext == "ext_defaults" {
 					config.UseDefaults = true
+					continue
 				}
 
 				if err := validateExt(config, ext); err != nil {
