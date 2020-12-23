@@ -20,7 +20,6 @@ import (
 	_ "github.com/tmpim/dnsproviders/httpreq"
 	_ "github.com/tmpim/dnsproviders/lightsail"
 	_ "github.com/tmpim/dnsproviders/linode"
-	_ "github.com/tmpim/dnsproviders/linodev4"
 	_ "github.com/tmpim/dnsproviders/namecheap"
 	_ "github.com/tmpim/dnsproviders/namedotcom"
 	_ "github.com/tmpim/dnsproviders/ovh"
