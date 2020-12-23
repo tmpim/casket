@@ -31,20 +31,23 @@ func init() {
 
 // setup configures a new mime middleware instance.
 func setup(c *casket.Controller) error {
-	configs, err := mimeParse(c)
+	config, err := mimeParse(c)
 	if err != nil {
 		return err
 	}
 
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		return Mime{Next: next, Configs: configs}
+		return Mime{Next: next, Configs: config}
 	})
 
 	return nil
 }
 
 func mimeParse(c *casket.Controller) (Config, error) {
-	configs := Config{}
+	config := Config{
+		UseDefaults: false,
+		Extensions:  make(map[string]string),
+	}
 
 	for c.Next() {
 		// At least one extension is required
@@ -52,36 +55,45 @@ func mimeParse(c *casket.Controller) (Config, error) {
 		args := c.RemainingArgs()
 		switch len(args) {
 		case 2:
-			if err := validateExt(configs, args[0]); err != nil {
-				return configs, err
+			if err := validateExt(config, args[0]); err != nil {
+				return config, err
 			}
-			configs[args[0]] = args[1]
+			config.Extensions[args[0]] = args[1]
 		case 1:
-			return configs, c.ArgErr()
+			if args[0] == "ext_defaults" {
+				config.UseDefaults = true
+			}
+
+			return config, c.ArgErr()
 		case 0:
 			for c.NextBlock() {
 				ext := c.Val()
-				if err := validateExt(configs, ext); err != nil {
-					return configs, err
+				if ext == "ext_defaults" {
+					config.UseDefaults = true
+				}
+
+				if err := validateExt(config, ext); err != nil {
+					return config, err
 				}
 				if !c.NextArg() {
-					return configs, c.ArgErr()
+					return config, c.ArgErr()
 				}
-				configs[ext] = c.Val()
+
+				config.Extensions[ext] = c.Val()
 			}
 		}
 
 	}
 
-	return configs, nil
+	return config, nil
 }
 
 // validateExt checks for valid file name extension.
-func validateExt(configs Config, ext string) error {
+func validateExt(config Config, ext string) error {
 	if !strings.HasPrefix(ext, ".") {
 		return fmt.Errorf(`mime: invalid extension "%v" (must start with dot)`, ext)
 	}
-	if _, ok := configs[ext]; ok {
+	if _, ok := config.Extensions[ext]; ok {
 		return fmt.Errorf(`mime: duplicate extension "%v" found`, ext)
 	}
 	return nil

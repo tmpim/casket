@@ -23,11 +23,47 @@ import (
 	"github.com/tmpim/casket/caskethttp/httpserver"
 )
 
+func TestMimeDefaultsHandler(t *testing.T) {
+	mimes := Config{
+		UseDefaults: true,
+		Extensions: map[string]string{
+			".juf": "application/juroku",
+			".txt": "text/vanilla",
+			".*":   "application/idk",
+		},
+	}
+
+	m := Mime{Configs: mimes}
+
+	w := httptest.NewRecorder()
+	exts := [][2]string{
+		{".juf", "application/juroku"},
+		{".txt", "text/vanilla"},
+		{".ogg", "audio/ogg"},
+		{".xxx", "application/idk"},
+	}
+	for _, e := range exts {
+		url := "/file" + e[0]
+		r, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			t.Error(err)
+		}
+		m.Next = nextFunc(true, e[1])
+		_, err = m.ServeHTTP(w, r)
+		if err != nil {
+			t.Error(err)
+		}
+	}
+}
+
 func TestMimeHandler(t *testing.T) {
 	mimes := Config{
-		".html": "text/html",
-		".txt":  "text/plain",
-		".swf":  "application/x-shockwave-flash",
+		UseDefaults: false,
+		Extensions: map[string]string{
+			".html": "text/html",
+			".txt":  "text/plain",
+			".swf":  "application/x-shockwave-flash",
+		},
 	}
 
 	m := Mime{Configs: mimes}
@@ -42,7 +78,7 @@ func TestMimeHandler(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		m.Next = nextFunc(true, mimes[e])
+		m.Next = nextFunc(true, mimes.Extensions[e])
 		_, err = m.ServeHTTP(w, r)
 		if err != nil {
 			t.Error(err)
