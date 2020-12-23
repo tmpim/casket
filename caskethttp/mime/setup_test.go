@@ -65,6 +65,8 @@ func TestSetup(t *testing.T) {
 		{`mime { .html
 		} `, true},
 		{`mime .txt text/plain`, false},
+		{`mime ext_defaults`, false},
+		{`mime { ext_defaults }`, false},
 	}
 	for i, test := range tests {
 		m, err := mimeParse(casket.NewTestController("http", test.input))
