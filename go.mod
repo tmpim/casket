@@ -14,9 +14,9 @@ require (
 	github.com/lucas-clemente/quic-go v0.19.3
 	github.com/naoina/toml v0.1.1
 	github.com/russross/blackfriday v1.6.0
-	github.com/tmpim/casket-plugins v0.0.0-20201223093301-83e7a30d9f01
+	github.com/tmpim/casket-plugins v0.0.0-20201223094111-c250df6d34b3
 	github.com/tmpim/certmagic v0.12.3-0.20201223090917-1d6ff5fdaf85
-	github.com/tmpim/dnsproviders v0.4.1-0.20201223092742-1c5637ff24b9
+	github.com/tmpim/dnsproviders v0.4.1-0.20201223094039-af238b95b9a1
 	golang.org/x/net v0.0.0-20201216054612-986b41b23924
 	gopkg.in/mcuadros/go-syslog.v2 v2.3.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
