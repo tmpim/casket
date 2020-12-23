@@ -15,6 +15,7 @@ require (
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/klauspost/cpuid v1.3.1
 	github.com/lucas-clemente/quic-go v0.19.3
+	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/naoina/toml v0.1.1
 	github.com/russross/blackfriday v1.6.0
 	github.com/tmpim/casket-plugins v0.0.1
@@ -25,6 +26,7 @@ require (
 	google.golang.org/api v0.36.0 // indirect
 	google.golang.org/genproto v0.0.0-20201214200347-8c77b98c765d // indirect
 	google.golang.org/grpc v1.34.0 // indirect
+	gopkg.in/gorethink/gorethink.v4 v4.1.0 // indirect
 	gopkg.in/mcuadros/go-syslog.v2 v2.3.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.4.0
