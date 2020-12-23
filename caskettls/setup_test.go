@@ -21,9 +21,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/go-acme/lego/v3/certcrypto"
-	"github.com/tmpim/certmagic"
+	"github.com/go-acme/lego/v4/certcrypto"
 	"github.com/tmpim/casket"
+	"github.com/tmpim/certmagic"
 )
 
 func TestMain(m *testing.M) {

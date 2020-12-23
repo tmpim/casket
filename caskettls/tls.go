@@ -29,9 +29,9 @@
 package caskettls
 
 import (
-	"github.com/go-acme/lego/v3/challenge"
-	"github.com/tmpim/certmagic"
+	"github.com/go-acme/lego/v4/challenge"
 	"github.com/tmpim/casket"
+	"github.com/tmpim/certmagic"
 )
 
 // ConfigHolder is any type that has a Config; it presumably is
