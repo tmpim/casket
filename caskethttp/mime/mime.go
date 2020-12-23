@@ -24,7 +24,10 @@ import (
 // Config represent a mime config. Map from extension to mime-type.
 // Note, this should be safe with concurrent read access, as this is
 // not modified concurrently.
-type Config map[string]string
+type Config struct {
+	UseDefaults bool
+	Extensions  map[string]string
+}
 
 // Mime sets Content-Type header of requests based on configurations.
 type Mime struct {
@@ -37,9 +40,20 @@ func (e Mime) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	// Get a clean /-path, grab the extension
 	ext := path.Ext(path.Clean(r.URL.Path))
 
-	if contentType, ok := e.Configs[ext]; ok {
+	if contentType, ok := e.Configs.Extensions[ext]; ok {
 		w.Header().Set("Content-Type", contentType)
+		goto done
+	} else if e.Configs.UseDefaults {
+		if contentType, ok := defaultExtensions[ext]; ok {
+			w.Header().Set("Content-Type", contentType)
+			goto done
+		}
 	}
 
+	if def, found := e.Configs.Extensions[".*"]; found {
+		w.Header().Set("Content-Type", def)
+	}
+
+done:
 	return e.Next.ServeHTTP(w, r)
 }
