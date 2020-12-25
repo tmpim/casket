@@ -31,11 +31,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/lucas-clemente/quic-go/http3"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/caskethttp/staticfiles"
 	"github.com/tmpim/casket/caskettls"
 	"github.com/tmpim/casket/telemetry"
-	"github.com/lucas-clemente/quic-go/http3"
 )
 
 // Server is the HTTP server implementation.
