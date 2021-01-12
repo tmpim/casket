@@ -10,8 +10,6 @@ adding our own touches for convenience and usability.
 
 ## Building
 
-> Casket does not support go1.15 at the moment, 1.14 is recommended.
-
 To build the main casket executable, the following procedure can be used:
 ```
 git clone https://github.com/tmpim/casket

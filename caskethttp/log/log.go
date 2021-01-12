@@ -48,6 +48,7 @@ func (l Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 			// set their own placeholders if they want to.
 			rep := httpserver.NewReplacer(r, responseRecorder, CommonLogEmptyValue)
 			responseRecorder.Replacer = rep
+			preURL := *r.URL
 
 			// Bon voyage, request!
 			status, err := l.Next.ServeHTTP(responseRecorder, r)
@@ -56,6 +57,7 @@ func (l Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 				// There was an error up the chain, but no response has been written yet.
 				// The error must be handled here so the log entry will record the response size.
 				if l.ErrorFunc != nil {
+					r.URL = &preURL
 					l.ErrorFunc(responseRecorder, r, status)
 				} else {
 					// Default failover error handler
@@ -68,7 +70,7 @@ func (l Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 			// Write log entries
 			for _, e := range rule.Entries {
 				// Check if there is an exception to prevent log being written
-				if !e.Log.ShouldLog(r.URL.Path) {
+				if !e.Log.ShouldLog(preURL.Path) {
 					continue
 				}
 
