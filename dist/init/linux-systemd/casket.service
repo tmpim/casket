@@ -6,7 +6,9 @@ Wants=network-online.target systemd-networkd-wait-online.service
 
 ; Do not allow the process to be restarted in a tight loop. If the
 ; process fails to start, something critical needs to be fixed.
-StartLimitIntervalSec=14400
+;
+; Consider uncommenting this line if your systemd is new enough:
+;StartLimitIntervalSec=14400
 StartLimitBurst=10
 
 [Service]
@@ -43,7 +45,7 @@ ProtectHome=true
 ProtectSystem=full
 ; … except /etc/ssl/casket, because we want Letsencrypt-certificates there.
 ;   This merely retains r/w access rights, it does not add any new. Must still be writable on the host!
-ReadWritePaths=/etc/ssl/casket
+;ReadWritePaths=/etc/ssl/casket
 ReadWriteDirectories=/etc/ssl/casket
 
 ; The following additional security directives only work with systemd v229 or later.
