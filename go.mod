@@ -18,7 +18,7 @@ require (
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/naoina/toml v0.1.1
 	github.com/russross/blackfriday v1.6.0
-	github.com/tmpim/casket-plugins v0.0.3-0.20201225135803-b92a648b01a7
+	github.com/tmpim/casket-plugins v0.0.3
 	github.com/tmpim/certmagic v0.12.4
 	github.com/tmpim/dnsproviders v0.4.2
 	golang.org/x/net v0.0.0-20201216054612-986b41b23924
