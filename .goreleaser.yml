@@ -23,10 +23,7 @@ builds:
         goarch: arm
     hooks:
       pre: |
-        cd casket
-        go get github.com/tmpim/casket@{{.Tag}}
-        go mod tidy
-        cd ..
+        sh ./.prerelease.sh
 
 archives:
   - format_overrides:
