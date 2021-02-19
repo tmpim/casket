@@ -21,9 +21,10 @@ builds:
         goarch: 386
       - goos: darwin
         goarch: arm
-    hooks:
-      pre: |
-        sh ./.prerelease.sh {{.Tag}}
+
+before:
+  hooks:
+    - sh ./.prerelease.sh
 
 archives:
   - format_overrides:
