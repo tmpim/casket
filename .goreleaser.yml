@@ -23,7 +23,7 @@ builds:
         goarch: arm
     hooks:
       pre: |
-        sh ./.prerelease.sh
+        sh ./.prerelease.sh {{.Tag}}
 
 archives:
   - format_overrides:
