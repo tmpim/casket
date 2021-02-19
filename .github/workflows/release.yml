@@ -21,8 +21,6 @@ jobs:
         run: |
           cd casket
           go mod init casket
-          go get github.com/tmpim/casket@{{.Tag}}
-          go mod tidy
           cd ..
 
       - name: Run GoReleaser

@@ -21,6 +21,12 @@ builds:
         goarch: 386
       - goos: darwin
         goarch: arm
+    hooks:
+      pre: |
+        cd casket
+        go get github.com/tmpim/casket@{{.Tag}}
+        go mod tidy
+        cd ..
 
 archives:
   - format_overrides:
