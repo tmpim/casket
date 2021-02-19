@@ -21,9 +21,6 @@ builds:
         goarch: 386
       - goos: darwin
         goarch: arm
-    hooks:
-      pre:
-       - go mod edit -require=github.com/tmpim/casket@{{.Tag}} casket/go.mod
 
 archives:
   - format_overrides:
