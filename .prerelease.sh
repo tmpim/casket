@@ -1,5 +1,5 @@
 #!/bin/sh
 cd casket
-go get "github.com/tmpim/casket@$(git tag --points-at HEAD)"
+go get "github.com/tmpim/casket@$(git describe)"
 go mod tidy
 cd ..
