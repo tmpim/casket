@@ -32,7 +32,7 @@ type TryFiles struct {
 
 func (t *TryFiles) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	for _, p := range t.Config.Except {
-		if strings.HasPrefix(r.URL.Path+"/", p+"/") {
+		if httpserver.Path(r.URL.Path).Matches(p) {
 			return t.Next.ServeHTTP(w, r)
 		}
 	}
