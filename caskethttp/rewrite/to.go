@@ -26,7 +26,7 @@ import (
 
 // To attempts rewrite. It attempts to rewrite to first valid path
 // or the last path if none of the paths are valid.
-func To(fs http.FileSystem, r *http.Request, to string, replacer httpserver.Replacer) Result {
+func To(fs http.FileSystem, r *http.Request, to string, replacer httpserver.Replacer, without ...string) Result {
 	tos := strings.Fields(to)
 
 	// try each rewrite paths
@@ -35,7 +35,12 @@ func To(fs http.FileSystem, r *http.Request, to string, replacer httpserver.Repl
 	for _, v := range tos {
 		t = replacer.Replace(v)
 		tparts := strings.SplitN(t, "?", 2)
-		t = path.Clean(tparts[0])
+
+		if len(without) > 0 {
+			t = path.Clean(strings.TrimPrefix(tparts[0], without[0]))
+		} else {
+			t = path.Clean(tparts[0])
+		}
 
 		if len(tparts) > 1 {
 			query = tparts[1]
