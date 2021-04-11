@@ -46,7 +46,6 @@ func (t *TryFiles) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error
 	return t.Next.ServeHTTP(w, r)
 }
 
-// setup configures a new Browse middleware instance.
 func setup(c *casket.Controller) error {
 	config, err := tryFilesParse(c)
 	if err != nil {
