@@ -115,7 +115,7 @@ func (fs FileServer) serveFile(w http.ResponseWriter, r *http.Request) (int, err
 				urlCopy.Path = strings.TrimPrefix(urlCopy.Path, "/")
 			}
 			urlCopy.Path += "/"
-			http.Redirect(w, r, urlCopy.String(), http.StatusMovedPermanently)
+			http.Redirect(w, r, urlCopy.String(), http.StatusTemporaryRedirect)
 			return 0, nil
 		}
 	} else {
@@ -126,23 +126,12 @@ func (fs FileServer) serveFile(w http.ResponseWriter, r *http.Request) (int, err
 			redir = true
 		}
 
-		// if an index file was explicitly requested, strip file name from the request
-		// ("/foo/index.html" -> "/foo/")
-		var requestPage = path.Base(urlCopy.Path)
-		for _, indexPage := range fs.IndexPages {
-			if requestPage == indexPage {
-				urlCopy.Path = urlCopy.Path[:len(urlCopy.Path)-len(indexPage)]
-				redir = true
-				break
-			}
-		}
-
 		if redir {
 			for strings.HasPrefix(urlCopy.Path, "//") {
 				// prevent path-based open redirects
 				urlCopy.Path = strings.TrimPrefix(urlCopy.Path, "/")
 			}
-			http.Redirect(w, r, urlCopy.String(), http.StatusMovedPermanently)
+			http.Redirect(w, r, urlCopy.String(), http.StatusTemporaryRedirect)
 			return 0, nil
 		}
 	}

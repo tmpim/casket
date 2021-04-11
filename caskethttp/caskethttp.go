@@ -44,6 +44,7 @@ import (
 	_ "github.com/tmpim/casket/caskethttp/status"
 	_ "github.com/tmpim/casket/caskethttp/templates"
 	_ "github.com/tmpim/casket/caskethttp/timeouts"
+	_ "github.com/tmpim/casket/caskethttp/tryfiles"
 	_ "github.com/tmpim/casket/caskethttp/websocket"
 	_ "github.com/tmpim/casket/onevent"
 )

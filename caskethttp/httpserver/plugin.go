@@ -641,6 +641,7 @@ var directives = []string{
 	"locale", // github.com/simia-tech/casket-locale
 	"log",
 	"cache", // github.com/nicolasazrak/casket-cache
+	"tryfiles",
 	"rewrite",
 	"ext",
 	"minify", // github.com/hacdias/casket-minify

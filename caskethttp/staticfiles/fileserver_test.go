@@ -42,7 +42,7 @@ func TestServeHTTP(t *testing.T) {
 		IndexPages: DefaultIndexPages,
 	}
 
-	movedPermanently := "Moved Permanently"
+	temporaryRedirect := "Temporary Redirect"
 
 	tests := []struct {
 		url                   string
@@ -85,9 +85,9 @@ func TestServeHTTP(t *testing.T) {
 		// Test 4 - access folder with index file without trailing slash
 		{
 			url:                 "https://foo/dirwithindex",
-			expectedStatus:      http.StatusMovedPermanently,
+			expectedStatus:      http.StatusTemporaryRedirect,
 			expectedLocation:    "https://foo/dirwithindex/",
-			expectedBodyContent: movedPermanently,
+			expectedBodyContent: temporaryRedirect,
 		},
 		// Test 5 - access folder without index file
 		{
@@ -97,16 +97,16 @@ func TestServeHTTP(t *testing.T) {
 		// Test 6 - access folder without trailing slash
 		{
 			url:                 "https://foo/dir",
-			expectedStatus:      http.StatusMovedPermanently,
+			expectedStatus:      http.StatusTemporaryRedirect,
 			expectedLocation:    "https://foo/dir/",
-			expectedBodyContent: movedPermanently,
+			expectedBodyContent: temporaryRedirect,
 		},
 		// Test 7 - access file with trailing slash
 		{
 			url:                 "https://foo/file1.html/",
-			expectedStatus:      http.StatusMovedPermanently,
+			expectedStatus:      http.StatusTemporaryRedirect,
 			expectedLocation:    "https://foo/file1.html",
-			expectedBodyContent: movedPermanently,
+			expectedBodyContent: temporaryRedirect,
 		},
 		// Test 8 - access not existing path
 		{
@@ -120,22 +120,24 @@ func TestServeHTTP(t *testing.T) {
 		},
 		// Test 10 - access an index file directly
 		{
-			url:              "https://foo/dirwithindex/index.html",
-			expectedStatus:   http.StatusMovedPermanently,
-			expectedLocation: "https://foo/dirwithindex/",
+			url:                   "https://foo/dirwithindex/index.html",
+			expectedStatus:        http.StatusOK,
+			expectedBodyContent:   testFiles[webrootDirwithindexIndexHTML],
+			expectedEtag:          `"2n9cw"`,
+			expectedContentLength: strconv.Itoa(len(testFiles[webrootDirwithindexIndexHTML])),
 		},
 		// Test 11 - access an index file with a trailing slash
 		{
 			url:              "https://foo/dirwithindex/index.html/",
-			expectedStatus:   http.StatusMovedPermanently,
-			expectedLocation: "https://foo/dirwithindex/",
+			expectedStatus:   http.StatusTemporaryRedirect,
+			expectedLocation: "https://foo/dirwithindex/index.html",
 		},
 		// Test 12 - send a request with query params
 		{
 			url:                 "https://foo/dir?param1=val",
-			expectedStatus:      http.StatusMovedPermanently,
+			expectedStatus:      http.StatusTemporaryRedirect,
 			expectedLocation:    "https://foo/dir/?param1=val",
-			expectedBodyContent: movedPermanently,
+			expectedBodyContent: temporaryRedirect,
 		},
 		// Test 13 - attempt to bypass hidden file
 		{
@@ -215,25 +217,25 @@ func TestServeHTTP(t *testing.T) {
 		{
 			url:                 "https://foo/bar/dirwithindex",
 			stripPathPrefix:     "/bar/",
-			expectedStatus:      http.StatusMovedPermanently,
+			expectedStatus:      http.StatusTemporaryRedirect,
 			expectedLocation:    "https://foo/bar/dirwithindex/",
-			expectedBodyContent: movedPermanently,
+			expectedBodyContent: temporaryRedirect,
 		},
 		// Test 25 - access folder with index file without trailing slash, with stripped path and query params
 		{
 			url:                 "https://foo/bar/dirwithindex?param1=val",
 			stripPathPrefix:     "/bar/",
-			expectedStatus:      http.StatusMovedPermanently,
+			expectedStatus:      http.StatusTemporaryRedirect,
 			expectedLocation:    "https://foo/bar/dirwithindex/?param1=val",
-			expectedBodyContent: movedPermanently,
+			expectedBodyContent: temporaryRedirect,
 		},
 		// Test 26 - site defined with path ("bar"), which has that prefix stripped
 		{
 			url:                 "https://foo/bar/file1.html/",
 			stripPathPrefix:     "/bar/",
-			expectedStatus:      http.StatusMovedPermanently,
+			expectedStatus:      http.StatusTemporaryRedirect,
 			expectedLocation:    "https://foo/bar/file1.html",
-			expectedBodyContent: movedPermanently,
+			expectedBodyContent: temporaryRedirect,
 		},
 		{
 			// Test 27 - Check etag
@@ -246,23 +248,24 @@ func TestServeHTTP(t *testing.T) {
 		{
 			// Test 28 - Prevent path-based open redirects (directory)
 			url:                 "https://foo//example.com%2f..",
-			expectedStatus:      http.StatusMovedPermanently,
+			expectedStatus:      http.StatusTemporaryRedirect,
 			expectedLocation:    "https://foo/example.com/../",
-			expectedBodyContent: movedPermanently,
+			expectedBodyContent: temporaryRedirect,
 		},
 		{
 			// Test 29 - Prevent path-based open redirects (file)
-			url:                 "https://foo//example.com%2f../dirwithindex/index.html",
-			expectedStatus:      http.StatusMovedPermanently,
-			expectedLocation:    "https://foo/example.com/../dirwithindex/",
-			expectedBodyContent: movedPermanently,
+			url:                   "https://foo//example.com%2f../dirwithindex/index.html",
+			expectedStatus:        http.StatusOK,
+			expectedBodyContent:   testFiles[webrootDirwithindexIndexHTML],
+			expectedEtag:          `"2n9cw"`,
+			expectedContentLength: strconv.Itoa(len(testFiles[webrootDirwithindexIndexHTML])),
 		},
 		{
 			// Test 29 - Prevent path-based open redirects (extra leading slashes)
 			url:                 "https://foo///example.com%2f..",
-			expectedStatus:      http.StatusMovedPermanently,
+			expectedStatus:      http.StatusTemporaryRedirect,
 			expectedLocation:    "https://foo/example.com/../",
-			expectedBodyContent: movedPermanently,
+			expectedBodyContent: temporaryRedirect,
 		},
 		// Test 30 - try to get pre- file.
 		{
