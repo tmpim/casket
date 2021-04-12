@@ -909,7 +909,8 @@ func IsLoopback(addr string) bool {
 	}
 	return host == "localhost" ||
 		strings.Trim(host, "[]") == "::1" ||
-		strings.HasPrefix(host, "127.")
+		strings.HasPrefix(host, "127.") ||
+		strings.HasSuffix(host, ".localhost")
 }
 
 // IsInternal returns true if the IP of addr
