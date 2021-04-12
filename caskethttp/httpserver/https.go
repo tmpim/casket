@@ -20,9 +20,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/tmpim/certmagic"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/caskettls"
+	"github.com/tmpim/certmagic"
 )
 
 func activateHTTPS(cctx casket.Context) error {
@@ -90,7 +90,12 @@ func activateHTTPS(cctx casket.Context) error {
 // the TLS config to true.
 func markQualifiedForAutoHTTPS(configs []*SiteConfig) {
 	for _, cfg := range configs {
-		if caskettls.QualifiesForManagedTLS(cfg) && cfg.Addr.Scheme != "http" {
+		if !casket.IsLoopback(cfg.Addr.Host) &&
+			!casket.IsLoopback(cfg.ListenHost) &&
+			!casket.IsInternal(cfg.Addr.Host) &&
+			!casket.IsInternal(cfg.ListenHost) &&
+			caskettls.QualifiesForManagedTLS(cfg) &&
+			cfg.Addr.Scheme != "http" {
 			cfg.TLS.Managed = true
 		}
 	}
