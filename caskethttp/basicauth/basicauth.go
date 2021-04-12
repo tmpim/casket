@@ -33,8 +33,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/tmpim/casket/caskethttp/httpserver"
 	"github.com/jimstudt/http-authentication/basic"
+	"github.com/tmpim/casket/caskethttp/httpserver"
 )
 
 // BasicAuth is middleware to protect resources with a username and password.
@@ -62,10 +62,17 @@ func (a BasicAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error
 		return a.Next.ServeHTTP(w, r)
 	}
 
+ruleLoop:
 	for _, rule := range a.Rules {
 		for _, res := range rule.Resources {
 			if !httpserver.Path(r.URL.Path).Matches(res) {
 				continue
+			}
+
+			for _, exclude := range rule.Exclude {
+				if httpserver.Path(r.URL.Path).Matches(exclude) {
+					continue ruleLoop
+				}
 			}
 
 			// path matches; this endpoint is protected
@@ -124,6 +131,7 @@ type Rule struct {
 	Username  string
 	Password  func(string) bool
 	Resources []string
+	Exclude   []string
 	Realm     string // See RFC 1945 and RFC 2617, default: "Restricted"
 }
 
