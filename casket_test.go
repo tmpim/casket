@@ -143,6 +143,7 @@ func TestIsLoopback(t *testing.T) {
 		{"::", false},
 		{"[::]", false},
 		{"local", false},
+		{"react.localhost", true},
 	} {
 		if got, want := IsLoopback(test.input), test.expect; got != want {
 			t.Errorf("Test %d (%s): expected %v but was %v", i, test.input, want, got)
@@ -204,6 +205,11 @@ func TestIsInternal(t *testing.T) {
 		{"::", false},
 		{"[::]", false},
 		{"local", false},
+
+		{"react.local", true},
+		{"cheese.example", true},
+		{"cows.invalid", true},
+		{"thisisa.test", true},
 	} {
 		if got, want := IsInternal(test.input), test.expect; got != want {
 			t.Errorf("Test %d (%s): expected %v but was %v", i, test.input, want, got)

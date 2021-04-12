@@ -925,6 +925,10 @@ func IsInternal(addr string) bool {
 		"fc00::/7",
 	}
 
+	privateTLDs := []string{
+		".example", ".invalid", ".test", ".local",
+	}
+
 	host, _, err := net.SplitHostPort(addr)
 	if err != nil {
 		host = addr // happens if the addr is just a hostname, missing port
@@ -932,6 +936,13 @@ func IsInternal(addr string) bool {
 		// because SplitHostPort didn't do it for us
 		host = strings.Trim(host, "[]")
 	}
+
+	for _, tld := range privateTLDs {
+		if strings.HasSuffix(host, tld) {
+			return true
+		}
+	}
+
 	ip := net.ParseIP(host)
 	if ip == nil {
 		return false

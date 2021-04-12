@@ -259,6 +259,8 @@ func (h *httpContext) MakeServers() ([]casket.Server, error) {
 		if !atLeastOneSiteLooksLikeProduction {
 			if !casket.IsLoopback(cfg.Addr.Host) &&
 				!casket.IsLoopback(cfg.ListenHost) &&
+				!casket.IsInternal(cfg.Addr.Host) &&
+				!casket.IsInternal(cfg.ListenHost) &&
 				(caskettls.QualifiesForManagedTLS(cfg) ||
 					certmagic.HostQualifies(cfg.Addr.Host)) {
 				atLeastOneSiteLooksLikeProduction = true
