@@ -330,6 +330,7 @@ footer {
 					{{- end}}
 					<span class="meta-item"><input type="text" placeholder="filter" id="filter" onkeyup='filter()'></span>
                     <span class="filler"></span>
+                    {{- if .ArchiveTypes }}
                     <div class="dropdown" onclick="">
                         Download Folder as Archive
                         <div class="dropdown-content">
@@ -340,6 +341,7 @@ footer {
                             {{- end}}
                         </div>
                     </div>
+                    {{- end}}
 				</div>
 			</div>
 			<div class="listing">
