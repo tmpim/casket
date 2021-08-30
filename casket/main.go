@@ -19,10 +19,15 @@
 
 package main
 
-import "github.com/tmpim/casket/casket/casketmain"
+import (
+	"log"
+
+	"github.com/tmpim/casket/casket/casketmain"
+)
 
 var run = casketmain.Run // replaced for tests
 
 func main() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds | log.Llongfile)
 	run()
 }

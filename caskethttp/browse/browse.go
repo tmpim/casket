@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -579,9 +580,14 @@ func (b Browse) ServeArchive(w http.ResponseWriter, r *http.Request, dirPath str
 	buf := buffer.New(int64(bc.BufferSize))
 	bufR, bufW := nio.Pipe(buf)
 
+	writeComplete := make(chan struct{})
+
 	go func() {
 		_, err := io.Copy(w, bufR)
-		bufW.CloseWithError(err)
+		if err != nil {
+			bufR.CloseWithError(err)
+		}
+		close(writeComplete)
 	}()
 
 	writer := archiveType.GetWriter()
@@ -589,7 +595,6 @@ func (b Browse) ServeArchive(w http.ResponseWriter, r *http.Request, dirPath str
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
-	defer writer.Close()
 
 	err = fs.Walk(bc.Fs.Root, dirPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -608,7 +613,8 @@ func (b Browse) ServeArchive(w http.ResponseWriter, r *http.Request, dirPath str
 		if info.Mode().IsRegular() {
 			file, err = bc.Fs.Root.Open(path)
 			if err != nil {
-				return fmt.Errorf("%s: opening: %v", path, err)
+				log.Printf("[WARNING] browse: error opening %q: %v", path, err)
+				return nil
 			}
 			defer file.Close()
 		}
@@ -635,6 +641,10 @@ func (b Browse) ServeArchive(w http.ResponseWriter, r *http.Request, dirPath str
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
+
+	writer.Close()
+	bufW.Close()
+	<-writeComplete
 
 	// Returning 0 indicates we intend to stream the file
 	return 0, nil
