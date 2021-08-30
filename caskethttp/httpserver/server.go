@@ -35,7 +35,6 @@ import (
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/caskethttp/staticfiles"
 	"github.com/tmpim/casket/caskettls"
-	"github.com/tmpim/casket/telemetry"
 )
 
 // Server is the HTTP server implementation.
@@ -360,14 +359,14 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// record the User-Agent string (with a cap on its length to mitigate attacks)
-	ua := r.Header.Get("User-Agent")
-	if len(ua) > 512 {
-		ua = ua[:512]
-	}
-	uaHash := telemetry.FastHash([]byte(ua)) // this is a normalized field
-	go telemetry.SetNested("http_user_agent", uaHash, ua)
-	go telemetry.AppendUnique("http_user_agent_count", uaHash)
-	go telemetry.Increment("http_request_count")
+	// ua := r.Header.Get("User-Agent")
+	// if len(ua) > 512 {
+	// 	ua = ua[:512]
+	// }
+	// uaHash := telemetry.FastHash([]byte(ua)) // this is a normalized field
+	// go telemetry.SetNested("http_user_agent", uaHash, ua)
+	// go telemetry.AppendUnique("http_user_agent_count", uaHash)
+	// go telemetry.Increment("http_request_count")
 
 	// copy the original, unchanged URL into the context
 	// so it can be referenced by middlewares

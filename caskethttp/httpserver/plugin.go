@@ -305,7 +305,12 @@ func (h *httpContext) MakeServers() ([]casket.Server, error) {
 	// then we create a server for each group
 	var servers []casket.Server
 	for addr, group := range groups {
-		s, err := NewServer(addr, group)
+		var s casket.Server
+		if strings.HasPrefix(addr, "tun://") {
+			s, err = NewTunServer(group[0])
+		} else {
+			s, err = NewServer(addr, group)
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -388,6 +393,12 @@ func groupSiteConfigsByListenAddr(configs []*SiteConfig) (map[string][]*SiteConf
 		// bind to 127.0.0.1 if conf.ListenHost is not already set, which
 		// would prevent outsiders from even connecting; but that was problematic:
 		// https://casket.community/t/wildcard-virtual-domains-with-wildcard-roots/221/5?u=matt
+
+		if conf.Addr.Scheme == "tun" {
+			addr := conf.Addr.String()
+			groups[addr] = append(groups[addr], conf)
+			continue
+		}
 
 		if conf.Addr.Port == "" {
 			conf.Addr.Port = Port

@@ -95,7 +95,8 @@ func markQualifiedForAutoHTTPS(configs []*SiteConfig) {
 			!casket.IsInternal(cfg.Addr.Host) &&
 			!casket.IsInternal(cfg.ListenHost) &&
 			caskettls.QualifiesForManagedTLS(cfg) &&
-			cfg.Addr.Scheme != "http" {
+			cfg.Addr.Scheme != "http" &&
+			cfg.Addr.Scheme != "tun" {
 			cfg.TLS.Managed = true
 		}
 	}

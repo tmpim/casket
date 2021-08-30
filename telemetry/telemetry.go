@@ -404,7 +404,7 @@ var (
 
 	// enabled indicates whether the package has
 	// been initialized and can be actively used.
-	enabled bool
+	// enabled bool
 
 	// maxBufferItems is the maximum number of items we'll allow
 	// in the buffer before we start dropping new ones, in a
@@ -425,4 +425,7 @@ const (
 	// value should be a long duration to help alleviate extra
 	// load on the server.
 	defaultUpdateInterval = 1 * time.Hour
+
+	// telemetry will never be enabled lol
+	enabled = false
 )

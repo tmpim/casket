@@ -36,20 +36,20 @@ import (
 // argument will be permanently disabled for the
 // lifetime of the process.
 func Init(instanceID uuid.UUID, disabledMetricsKeys []string) {
-	if enabled {
-		panic("already initialized")
-	}
-	if str := instanceID.String(); str == "" ||
-		str == "00000000-0000-0000-0000-000000000000" {
-		panic("empty UUID")
-	}
-	instanceUUID = instanceID
-	disabledMetricsMu.Lock()
-	for _, key := range disabledMetricsKeys {
-		disabledMetrics[strings.TrimSpace(key)] = false
-	}
-	disabledMetricsMu.Unlock()
-	enabled = true
+	// if enabled {
+	// 	panic("already initialized")
+	// }
+	// if str := instanceID.String(); str == "" ||
+	// 	str == "00000000-0000-0000-0000-000000000000" {
+	// 	panic("empty UUID")
+	// }
+	// instanceUUID = instanceID
+	// disabledMetricsMu.Lock()
+	// for _, key := range disabledMetricsKeys {
+	// 	disabledMetrics[strings.TrimSpace(key)] = false
+	// }
+	// disabledMetricsMu.Unlock()
+	// enabled = true
 }
 
 // StartEmitting sends the current payload and begins the

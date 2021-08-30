@@ -21,6 +21,7 @@ require (
 	github.com/tmpim/casket-plugins v0.0.4-0.20210411234607-8b023eeb664d
 	github.com/tmpim/certmagic v0.12.4
 	github.com/tmpim/dnsproviders v0.4.2
+	github.com/xtaci/smux v1.5.15 // indirect
 	golang.org/x/net v0.0.0-20201216054612-986b41b23924
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a // indirect
 	google.golang.org/api v0.36.0 // indirect
