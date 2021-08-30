@@ -32,6 +32,8 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/djherbis/buffer"
+	"github.com/djherbis/nio/v3"
 	"github.com/dustin/go-humanize"
 	"github.com/mholt/archiver/v3"
 	"github.com/rakyll/statik/fs"
@@ -90,6 +92,7 @@ type Config struct {
 	Variables    interface{}
 	Template     *template.Template
 	ArchiveTypes []ArchiveType
+	BufferSize   uint64
 }
 
 // A Listing is the context used to fill out a template.
@@ -571,9 +574,18 @@ func (b Browse) ServeArchive(w http.ResponseWriter, r *http.Request, dirPath str
 
 	w.Header().Set("Content-Type", contentType)
 	w.Header().Set("Content-Disposition", "attachment; filename="+strconv.Quote(fileBaseName+"."+string(archiveType)))
+	w.WriteHeader(http.StatusOK)
+
+	buf := buffer.New(int64(bc.BufferSize))
+	bufR, bufW := nio.Pipe(buf)
+
+	go func() {
+		_, err := io.Copy(w, bufR)
+		bufW.CloseWithError(err)
+	}()
 
 	writer := archiveType.GetWriter()
-	err := writer.Create(w)
+	err := writer.Create(bufW)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}

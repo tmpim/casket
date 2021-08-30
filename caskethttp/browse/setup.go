@@ -19,8 +19,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"text/template"
 
+	"github.com/inhies/go-bytesize"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/caskethttp/httpserver"
 	"github.com/tmpim/casket/caskethttp/staticfiles"
@@ -70,6 +72,7 @@ func browseParse(c *casket.Controller) ([]Config, error) {
 
 	for c.Next() {
 		var bc Config
+		bc.BufferSize = 10 * 1024 * 1024 // 10 MB
 
 		args := c.RemainingArgs()
 
@@ -125,7 +128,7 @@ func browseParse(c *casket.Controller) ([]Config, error) {
 					if _, found := ArchiveTypeToMime[archiveType]; found {
 						types = append(types, archiveType)
 					} else {
-						return configs, c.Errf("Invalid archive type: %s", archiveType)
+						return configs, c.Errf("invalid archive type: %s", archiveType)
 					}
 				}
 
@@ -134,6 +137,14 @@ func browseParse(c *casket.Controller) ([]Config, error) {
 				} else {
 					bc.ArchiveTypes = types
 				}
+			case "buffer":
+				bufSizeStr := strings.Join(c.RemainingArgs(), " ")
+				size, err := bytesize.Parse(bufSizeStr)
+				if err != nil {
+					return configs, c.Errf("error parsing buffer size: %v", err)
+				}
+
+				bc.BufferSize = uint64(size)
 			default:
 				return configs, c.Errf("unknown property '%s'", c.Val())
 			}
