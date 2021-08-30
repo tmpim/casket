@@ -5,6 +5,7 @@ Vagrantfile
 .vagrant/
 /.idea
 
+build/
 dist/builds/
 dist/release/
 dist/casket_*

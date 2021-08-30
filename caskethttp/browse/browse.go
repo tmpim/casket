@@ -18,7 +18,10 @@ package browse
 
 import (
 	"bytes"
+	"compress/flate"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -29,9 +32,11 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/dustin/go-humanize"
+	"github.com/mholt/archiver/v3"
+	"github.com/rakyll/statik/fs"
 	"github.com/tmpim/casket/caskethttp/httpserver"
 	"github.com/tmpim/casket/caskethttp/staticfiles"
-	"github.com/dustin/go-humanize"
 )
 
 const (
@@ -39,6 +44,35 @@ const (
 	sortByNameDirFirst = "namedirfirst"
 	sortBySize         = "size"
 	sortByTime         = "time"
+)
+
+type ArchiveType string
+
+const (
+	ArchiveZip       ArchiveType = "zip"
+	ArchiveTar       ArchiveType = "tar"
+	ArchiveTarGz     ArchiveType = "tar.gz"
+	ArchiveTarXz     ArchiveType = "tar.xz"
+	ArchiveTarBrotli ArchiveType = "tar.br"
+	ArchiveTarBz2    ArchiveType = "tar.bz2"
+	ArchiveTarLz4    ArchiveType = "tar.lz4"
+	ArchiveTarSz     ArchiveType = "tar.sz"
+	ArchiveTarZstd   ArchiveType = "tar.zst"
+)
+
+var (
+	ArchiveTypes      = []ArchiveType{ArchiveZip, ArchiveTar, ArchiveTarGz, ArchiveTarXz, ArchiveTarBrotli, ArchiveTarBz2, ArchiveTarLz4, ArchiveTarSz, ArchiveTarZstd}
+	ArchiveTypeToMime = map[ArchiveType]string{
+		ArchiveZip:       "application/zip",
+		ArchiveTar:       "application/tar",
+		ArchiveTarGz:     "application/tar+gzip",
+		ArchiveTarXz:     "application/tar+xz",
+		ArchiveTarBrotli: "application/tar+brotli",
+		ArchiveTarBz2:    "application/tar+bzip2",
+		ArchiveTarLz4:    "application/tar+lz4",
+		ArchiveTarSz:     "application/tar+snappy",
+		ArchiveTarZstd:   "application/tar+zstd",
+	}
 )
 
 // Browse is an http.Handler that can show a file listing when
@@ -51,10 +85,11 @@ type Browse struct {
 
 // Config is a configuration for browsing in a particular path.
 type Config struct {
-	PathScope string // the base path the URL must match to enable browsing
-	Fs        staticfiles.FileServer
-	Variables interface{}
-	Template  *template.Template
+	PathScope    string // the base path the URL must match to enable browsing
+	Fs           staticfiles.FileServer
+	Variables    interface{}
+	Template     *template.Template
+	ArchiveTypes []ArchiveType
 }
 
 // A Listing is the context used to fill out a template.
@@ -85,6 +120,8 @@ type Listing struct {
 
 	// If ≠0 then Items have been limited to that many elements.
 	ItemsLimitedTo int
+
+	ArchiveTypes []ArchiveType
 
 	// Optional custom variables for use in browse templates.
 	User interface{}
@@ -286,12 +323,13 @@ func directoryListing(files []os.FileInfo, canGoUp bool, urlPath string, config 
 	}
 
 	return Listing{
-		Name:     path.Base(urlPath),
-		Path:     urlPath,
-		CanGoUp:  canGoUp,
-		Items:    fileInfos,
-		NumDirs:  dirCount,
-		NumFiles: fileCount,
+		Name:         path.Base(urlPath),
+		Path:         urlPath,
+		CanGoUp:      canGoUp,
+		Items:        fileInfos,
+		NumDirs:      dirCount,
+		NumFiles:     fileCount,
+		ArchiveTypes: config.ArchiveTypes,
 	}, hasIndexFile
 }
 
@@ -387,7 +425,7 @@ func (b Browse) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 		return http.StatusMovedPermanently, nil
 	}
 
-	return b.ServeListing(w, r, requestedFilepath, bc)
+	return b.ServeListing(w, r, requestedFilepath, info, bc)
 }
 
 func (b Browse) loadDirectoryContents(requestedFilepath http.File, urlPath string, config *Config) (*Listing, bool, error) {
@@ -451,7 +489,7 @@ func (b Browse) handleSortOrder(w http.ResponseWriter, r *http.Request, scope st
 }
 
 // ServeListing returns a formatted view of 'requestedFilepath' contents'.
-func (b Browse) ServeListing(w http.ResponseWriter, r *http.Request, requestedFilepath http.File, bc *Config) (int, error) {
+func (b Browse) ServeListing(w http.ResponseWriter, r *http.Request, requestedFilepath http.File, info os.FileInfo, bc *Config) (int, error) {
 	listing, containsIndex, err := b.loadDirectoryContents(requestedFilepath, r.URL.Path, bc)
 	if err != nil {
 		switch {
@@ -472,6 +510,20 @@ func (b Browse) ServeListing(w http.ResponseWriter, r *http.Request, requestedFi
 		URL:  r.URL,
 	}
 	listing.User = bc.Variables
+
+	// Check if this is an archive request
+	archiveTypeStr := r.URL.Query().Get("archive")
+	if archiveTypeStr != "" {
+		archiveType := ArchiveType(archiveTypeStr)
+		for _, t := range bc.ArchiveTypes {
+			if t == archiveType {
+				return b.ServeArchive(w, r, path.Clean(r.URL.Path), info, archiveType, bc)
+			}
+		}
+
+		// We cannot produce an archive of this type, return 404 Not Found
+		return http.StatusNotFound, nil
+	}
 
 	// Copy the query values into the Listing struct
 	var limit int
@@ -507,6 +559,106 @@ func (b Browse) ServeListing(w http.ResponseWriter, r *http.Request, requestedFi
 	_, _ = buf.WriteTo(w)
 
 	return http.StatusOK, nil
+}
+
+func (b Browse) ServeArchive(w http.ResponseWriter, r *http.Request, dirPath string, dirInfo os.FileInfo, archiveType ArchiveType, bc *Config) (int, error) {
+	contentType := ArchiveTypeToMime[archiveType]
+
+	fileBaseName := path.Base(dirPath)
+	if fileBaseName == "/" {
+		fileBaseName = "root"
+	}
+
+	w.Header().Set("Content-Type", contentType)
+	w.Header().Set("Content-Disposition", "attachment; filename="+strconv.Quote(fileBaseName+"."+string(archiveType)))
+
+	writer := archiveType.GetWriter()
+	err := writer.Create(w)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	defer writer.Close()
+
+	err = fs.Walk(bc.Fs.Root, dirPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info == nil {
+			return fmt.Errorf("file info was nil")
+		}
+
+		if path == dirPath {
+			return nil // Skip the containing directory
+		}
+
+		var file io.ReadCloser
+		if info.Mode().IsRegular() {
+			file, err = bc.Fs.Root.Open(path)
+			if err != nil {
+				return fmt.Errorf("%s: opening: %v", path, err)
+			}
+			defer file.Close()
+		}
+
+		archiveFileName, err := archiver.NameInArchive(dirInfo, dirPath, path)
+		if err != nil {
+			return err
+		}
+
+		err = writer.Write(archiver.File{
+			FileInfo: archiver.FileInfo{
+				FileInfo:   info,
+				CustomName: archiveFileName,
+			},
+			ReadCloser: file,
+		})
+		if err != nil {
+			return fmt.Errorf("writing file to archive: %v", err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	// Returning 0 indicates we intend to stream the file
+	return 0, nil
+}
+
+func (a ArchiveType) GetWriter() archiver.Writer {
+	switch a {
+	case ArchiveZip:
+		return &archiver.Zip{
+			FileMethod:             archiver.Deflate,
+			CompressionLevel:       flate.DefaultCompression,
+			MkdirAll:               true,
+			SelectiveCompression:   true,
+			ImplicitTopLevelFolder: true,
+		}
+
+	case ArchiveTar:
+		return &archiver.Tar{MkdirAll: true, ImplicitTopLevelFolder: true}
+	case ArchiveTarGz:
+		return &archiver.TarGz{Tar: &archiver.Tar{MkdirAll: true, ImplicitTopLevelFolder: true}, CompressionLevel: flate.DefaultCompression}
+	case ArchiveTarXz:
+		return &archiver.TarXz{Tar: &archiver.Tar{MkdirAll: true, ImplicitTopLevelFolder: true}}
+	case ArchiveTarBrotli:
+		return &archiver.TarBrotli{Tar: &archiver.Tar{MkdirAll: true, ImplicitTopLevelFolder: true}, Quality: 3}
+	case ArchiveTarBz2:
+		return &archiver.TarBz2{Tar: &archiver.Tar{MkdirAll: true, ImplicitTopLevelFolder: true}, CompressionLevel: 2}
+	case ArchiveTarLz4:
+		return &archiver.TarLz4{Tar: &archiver.Tar{MkdirAll: true, ImplicitTopLevelFolder: true}, CompressionLevel: 1}
+	case ArchiveTarSz:
+		return &archiver.TarSz{Tar: &archiver.Tar{MkdirAll: true, ImplicitTopLevelFolder: true}}
+	case ArchiveTarZstd:
+		return &archiver.TarZstd{Tar: &archiver.Tar{MkdirAll: true, ImplicitTopLevelFolder: true}}
+
+	default:
+		panic("unknown archive type: " + a)
+	}
 }
 
 func (b Browse) formatAsJSON(listing *Listing, bc *Config) (*bytes.Buffer, error) {
