@@ -17,3 +17,5 @@ cd casket
 go build -o ./build/casket ./casket
 # The executable can now be found at ./build/casket
 ```
+
+Note these development builds will lack version information and will report a version of (devel)
