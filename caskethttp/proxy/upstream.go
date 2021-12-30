@@ -497,7 +497,7 @@ func parseBlock(c *casketfile.Dispenser, u *staticUpstream, hasSrv bool) error {
 				u.downstreamHeaders.Add(header, value)
 			}
 		}
-	case "transparent":
+	case "transparent", "trans":
 		// Note: X-Forwarded-For header is always being appended for proxy connections
 		// See implementation of createUpstreamRequest in proxy.go
 		u.upstreamHeaders.Add("Host", "{host}")
