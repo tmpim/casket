@@ -787,6 +787,10 @@ github.com/tmpim/dnsproviders v0.4.2 h1:H3DJyrEp4fgcEzbwA/XIoUSp5gBTpBts1XN9V0ni
 github.com/tmpim/dnsproviders v0.4.2/go.mod h1:QNqmtAefbbf/2BYM2hhVHaFglA584r3ayGps32Gu/c8=
 github.com/tmpim/dnsproviders v0.4.3-0.20211231212959-3a1b651fdadc h1:IdA9hrsD2UqjPOO8Q7RGD7sD8sOLaGAR5B7uUvQTrLU=
 github.com/tmpim/dnsproviders v0.4.3-0.20211231212959-3a1b651fdadc/go.mod h1:QNqmtAefbbf/2BYM2hhVHaFglA584r3ayGps32Gu/c8=
+github.com/tmpim/dnsproviders v0.4.3-0.20211231213419-83f7973ac90b h1:7vqbmQe22f0M7dKnLI+TaByTF5NCJsdx4HqNhxaJi7Y=
+github.com/tmpim/dnsproviders v0.4.3-0.20211231213419-83f7973ac90b/go.mod h1:QNqmtAefbbf/2BYM2hhVHaFglA584r3ayGps32Gu/c8=
+github.com/tmpim/dnsproviders v0.4.3-0.20211231213508-66e13a82678d h1:5IkgvDcbqfqrb635H58scO8qwiCy9Qpq7rp7zEq9VJw=
+github.com/tmpim/dnsproviders v0.4.3-0.20211231213508-66e13a82678d/go.mod h1:QNqmtAefbbf/2BYM2hhVHaFglA584r3ayGps32Gu/c8=
 github.com/transip/gotransip v0.0.0-20190812104329-6d8d9179b66f/go.mod h1:i0f4R4o2HM0m3DZYQWsj6/MEowD57VzoH0v3d7igeFY=
 github.com/transip/gotransip/v6 v6.2.0/go.mod h1:pQZ36hWWRahCUXkFWlx9Hs711gLd8J4qdgLdRzmtY+g=
 github.com/uber-go/atomic v1.3.2/go.mod h1:/Ct5t2lcmbJ4OSe/waGBoaVvVqtO0bmtfVNex1PFV8g=

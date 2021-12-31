@@ -27,7 +27,7 @@ require (
 	github.com/russross/blackfriday v1.6.0
 	github.com/tmpim/casket-plugins v0.0.4-0.20210411234607-8b023eeb664d
 	github.com/tmpim/certmagic v0.12.4
-	github.com/tmpim/dnsproviders v0.4.3-0.20211231212959-3a1b651fdadc
+	github.com/tmpim/dnsproviders v0.4.3-0.20211231213508-66e13a82678d
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
 	golang.org/x/mod v0.5.0 // indirect
 	golang.org/x/net v0.0.0-20210825183410-e898025ed96a
