@@ -785,6 +785,8 @@ github.com/tmpim/certmagic v0.12.4 h1:k8MDMZT65fadsCu7fUONdksu5L7NONN6kgtX6dLd18
 github.com/tmpim/certmagic v0.12.4/go.mod h1:GrjIQ+gs5GW+jmqRkOnfoBjIiuk12VV4zbxoWBs8lQc=
 github.com/tmpim/dnsproviders v0.4.2 h1:H3DJyrEp4fgcEzbwA/XIoUSp5gBTpBts1XN9V0niTC0=
 github.com/tmpim/dnsproviders v0.4.2/go.mod h1:QNqmtAefbbf/2BYM2hhVHaFglA584r3ayGps32Gu/c8=
+github.com/tmpim/dnsproviders v0.4.3-0.20211231212959-3a1b651fdadc h1:IdA9hrsD2UqjPOO8Q7RGD7sD8sOLaGAR5B7uUvQTrLU=
+github.com/tmpim/dnsproviders v0.4.3-0.20211231212959-3a1b651fdadc/go.mod h1:QNqmtAefbbf/2BYM2hhVHaFglA584r3ayGps32Gu/c8=
 github.com/transip/gotransip v0.0.0-20190812104329-6d8d9179b66f/go.mod h1:i0f4R4o2HM0m3DZYQWsj6/MEowD57VzoH0v3d7igeFY=
 github.com/transip/gotransip/v6 v6.2.0/go.mod h1:pQZ36hWWRahCUXkFWlx9Hs711gLd8J4qdgLdRzmtY+g=
 github.com/uber-go/atomic v1.3.2/go.mod h1:/Ct5t2lcmbJ4OSe/waGBoaVvVqtO0bmtfVNex1PFV8g=
