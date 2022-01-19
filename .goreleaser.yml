@@ -40,8 +40,8 @@ dockers:
     image_templates:
       - "gcr.io/tmpim/casket:latest"
       - "gcr.io/tmpim/casket:{{ .Tag }}"
-      - "gcr.io/tmpim/casket:{{ .Tag }}-{{ .Env.GO_VERSION }}"
       - "gcr.io/tmpim/casket:v{{ .Major }}"
+      - "gcr.io/tmpim/casket:v{{ .Major }}.{{ .Minor }}"
 
 # Set dist directory to build/ since we have files in dist/
 dist: build
@@ -51,7 +51,9 @@ before:
     - sh ./.prerelease.sh
 
 archives:
-  - format_overrides:
+  - builds:
+      - casket
+    format_overrides:
       - goos: windows
         format: zip
 checksum:
