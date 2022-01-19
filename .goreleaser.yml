@@ -1,5 +1,5 @@
 builds:
-  - id: "casket"
+  - id: casket
     main: main.go
     dir: ./casket
     binary: casket
@@ -22,7 +22,7 @@ builds:
       - goos: darwin
         goarch: arm
   # Build specifically for the Docker image with CGO disabled for MUSL compatibility
-  - id: "docker"
+  - id: docker
     main: main.go
     dir: ./casket
     binary: casket
@@ -51,7 +51,8 @@ before:
     - sh ./.prerelease.sh
 
 archives:
-  - builds:
+  - id: casket
+    builds:
       - casket
     format_overrides:
       - goos: windows
