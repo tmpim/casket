@@ -21,13 +21,30 @@ builds:
         goarch: 386
       - goos: darwin
         goarch: arm
+  # Build specifically for the Docker image with CGO disabled for MUSL compatibility
+  - id: "docker"
+    main: main.go
+    dir: ./casket
+    binary: casket
+    env:
+      - CGO_ENABLED=0
+    goos: 
+      - linux
+    goarch:
+      - amd64
 
 dockers:
-  - image_templates:
-    - "gcr.io/tmpim/casket:latest"
-    - "gcr.io/tmpim/casket:{{ .Tag }}"
-    - "gcr.io/tmpim/casket:{{ .Tag }}-{{ .Env.GO_VERSION }}"
-    - "gcr.io/tmpim/casket:v{{ .Major }}"
+  - ids:
+      - docker
+    dockerfile: Dockerfile.release
+    image_templates:
+      - "gcr.io/tmpim/casket:latest"
+      - "gcr.io/tmpim/casket:{{ .Tag }}"
+      - "gcr.io/tmpim/casket:{{ .Tag }}-{{ .Env.GO_VERSION }}"
+      - "gcr.io/tmpim/casket:v{{ .Major }}"
+
+# Set dist directory to build/ since we have files in dist/
+dist: build
 
 before:
   hooks:
@@ -44,5 +61,7 @@ release:
   github:
     owner: tmpim
     name: casket
+  ids:
+    - casket
   draft: true
   prerelease: auto
