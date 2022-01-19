@@ -38,10 +38,10 @@ dockers:
       - docker
     dockerfile: Dockerfile.release
     image_templates:
-      - "gcr.io/tmpim/casket:latest"
-      - "gcr.io/tmpim/casket:{{ .Tag }}"
-      - "gcr.io/tmpim/casket:v{{ .Major }}"
-      - "gcr.io/tmpim/casket:v{{ .Major }}.{{ .Minor }}"
+      - "ghcr.io/tmpim/casket:latest"
+      - "ghcr.io/tmpim/casket:{{ .Tag }}"
+      - "ghcr.io/tmpim/casket:v{{ .Major }}"
+      - "ghcr.io/tmpim/casket:v{{ .Major }}.{{ .Minor }}"
 
 # Set dist directory to build/ since we have files in dist/
 dist: build
