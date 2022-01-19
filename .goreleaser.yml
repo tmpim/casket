@@ -22,6 +22,13 @@ builds:
       - goos: darwin
         goarch: arm
 
+dockers:
+  - image_templates:
+    - "gcr.io/tmpim/casket:latest"
+    - "gcr.io/tmpim/casket:{{ .Tag }}"
+    - "gcr.io/tmpim/casket:{{ .Tag }}-{{ .Env.GO_VERSION }}"
+    - "gcr.io/tmpim/casket:v{{ .Major }}"
+
 before:
   hooks:
     - sh ./.prerelease.sh
