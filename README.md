@@ -28,9 +28,9 @@ goreleaser build --snapshot --rm-dist --single-target --id casket # Create a sna
 
 ## Docker
 
-A docker image is provided for the latest version of Casket from `ghcr.io/tmpim/casket`.
+A docker image is provided for the latest version of Casket from [`ghcr.io/tmpim/casket`](https://ghcr.io/tmpim/casket).
 
-Example using docker-compose:
+Example using [`docker-compose`](https://docs.docker.com/compose/):
 ```yaml
 version: "3.8"
 
