@@ -296,6 +296,19 @@ func (r *replacer) getSubstitution(key string) string {
 		name := key[2 : len(key)-1]
 		return query.Get(name)
 	}
+	// next check for environment variable
+	if key[1] == '$' {
+		name := key[2 : len(key)-1]
+		// check for a default value
+		if i := strings.Index(name, "="); i != -1 {
+			if value := os.Getenv(name[:i]); value != "" {
+				return value
+			}
+			return name[i+1:]
+		}
+
+		return os.Getenv(name)
+	}
 
 	// search default replacements in the end
 	switch key {
