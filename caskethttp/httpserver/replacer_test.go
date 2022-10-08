@@ -75,6 +75,9 @@ func TestReplace(t *testing.T) {
 	// add some headers after creating replacer
 	request.Header.Set("CustomAdd", "casket")
 	request.Header.Set("Cookie", "foo=bar; taste=delicious")
+	// add some environment variables
+	os.Setenv("TEST_ENV", "test")
+	os.Setenv("TEST_ENV_EMPTY", "")
 
 	// add some response headers
 	recordRequest.Header().Set("Custom", "CustomResponseHeader")
@@ -108,6 +111,11 @@ func TestReplace(t *testing.T) {
 		{"The Custom header is {>Custom}.", "The Custom header is foobarbaz."},
 		{"The CustomAdd header is {>CustomAdd}.", "The CustomAdd header is casket."},
 		{"The Custom response header is {<Custom}.", "The Custom response header is CustomResponseHeader."},
+		{"The env variable TEST_ENV is {$TEST_ENV}.", "The env variable TEST_ENV is test."},
+		{"The env variable TEST_ENV is {$TEST_ENV=default}, not default.", "The env variable TEST_ENV is test, not default."},
+		{"The env variable TEST_ENV_EMPTY is {$TEST_ENV_EMPTY}.", "The env variable TEST_ENV_EMPTY is ."},
+		{"The env variable TEST_ENV_EMPTY defaults to {$TEST_ENV_EMPTY=default}.", "The env variable TEST_ENV_EMPTY defaults to default."},
+		{"The env variable NO_EXIST defaults to {$NO_EXIST=default}.", "The env variable NO_EXIST defaults to default."},
 		{"Bad {>Custom placeholder", "Bad {>Custom placeholder"},
 		{"The request is {request}.", "The request is POST /?foo=bar HTTP/1.1\\r\\nHost: localhost.local\\r\\n" +
 			"Cookie: foo=bar; taste=delicious\\r\\nCustom: foobarbaz\\r\\nCustomadd: casket\\r\\n" +

@@ -783,6 +783,7 @@ github.com/tmpim/casket-plugins v0.0.4-0.20210411234607-8b023eeb664d h1:vn0yn5M2
 github.com/tmpim/casket-plugins v0.0.4-0.20210411234607-8b023eeb664d/go.mod h1:RYBOo9WtK3LmyjGZVzEm1ptZV9uvPprzvz0V6i9qyuI=
 github.com/tmpim/certmagic v0.12.4 h1:k8MDMZT65fadsCu7fUONdksu5L7NONN6kgtX6dLd18w=
 github.com/tmpim/certmagic v0.12.4/go.mod h1:GrjIQ+gs5GW+jmqRkOnfoBjIiuk12VV4zbxoWBs8lQc=
+github.com/tmpim/dnsproviders v0.4.2/go.mod h1:QNqmtAefbbf/2BYM2hhVHaFglA584r3ayGps32Gu/c8=
 github.com/tmpim/dnsproviders v0.4.3-0.20211231213508-66e13a82678d h1:5IkgvDcbqfqrb635H58scO8qwiCy9Qpq7rp7zEq9VJw=
 github.com/tmpim/dnsproviders v0.4.3-0.20211231213508-66e13a82678d/go.mod h1:QNqmtAefbbf/2BYM2hhVHaFglA584r3ayGps32Gu/c8=
 github.com/transip/gotransip v0.0.0-20190812104329-6d8d9179b66f/go.mod h1:i0f4R4o2HM0m3DZYQWsj6/MEowD57VzoH0v3d7igeFY=
