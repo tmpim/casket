@@ -10,7 +10,7 @@ WORKDIR /workdir
 
 RUN cd casket && go mod init casket \
     && GOPROXY=https://proxy.golang.org,direct GOPRIVATE=github.com/tmpim/casket go get "github.com/tmpim/casket@master" \
-    && go mod tidy && go build -o casket
+    && go mod tidy && CGO_ENABLED=0 go build -o casket .
 
 FROM alpine:3
 
