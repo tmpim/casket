@@ -3,7 +3,7 @@ FROM golang:1.17-bullseye AS builder
 WORKDIR /workdir
 
 COPY go.mod go.sum /workdir
-RUN go mod download
+RUN GOPROXY=https://proxy.golang.org,direct go mod download
 
 COPY . /workdir
 WORKDIR /workdir
