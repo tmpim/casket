@@ -28,50 +28,20 @@ builds:
     binary: casket
     env:
       - CGO_ENABLED=0
-    goos:
+    goos: 
       - linux
     goarch:
       - amd64
 
 dockers:
   - ids:
-      - docker-amd64
-    goarch: amd64
-    use: buildx
+      - docker
     dockerfile: Dockerfile.release
     image_templates:
-      - "ghcr.io/tmpim/casket:latest-amd64"
-      - "ghcr.io/tmpim/casket:{{ .Tag }}-amd64"
-      - "ghcr.io/tmpim/casket:v{{ .Major }}-amd64"
-      - "ghcr.io/tmpim/casket:v{{ .Major }}.{{ .Minor }}-amd64"
-  - ids:
-      - docker-arm64
-    goarch: arm64
-    use: buildx
-    dockerfile: Dockerfile.release
-    image_templates:
-      - "ghcr.io/tmpim/casket:latest-arm64"
-      - "ghcr.io/tmpim/casket:{{ .Tag }}-arm64"
-      - "ghcr.io/tmpim/casket:v{{ .Major }}-arm64"
-      - "ghcr.io/tmpim/casket:v{{ .Major }}.{{ .Minor }}-arm64"
-
-docker_manifests:
-- name_template: ghcr.io/tmpim/casket:latest
-  image_templates:
-  - ghcr.io/tmpim/casket:latest-amd64
-  - ghcr.io/tmpim/casket:latest-arm64
-- name_template: ghcr.io/tmpim/casket:{{ .Tag }}
-  image_templates:
-  - ghcr.io/tmpim/casket:{{ .Tag }}-amd64
-  - ghcr.io/tmpim/casket:{{ .Tag }}-arm64
-- name_template: ghcr.io/tmpim/casket:v{{ .Major }}
-  image_templates:
-  - ghcr.io/tmpim/casket:{{ .Major }}-amd64
-  - ghcr.io/tmpim/casket:{{ .Major }}-arm64
-- name_template: ghcr.io/tmpim/casket:v{{ .Major }}.{{ .Minor }}
-  image_templates:
-  - ghcr.io/tmpim/casket:{{ .Major }}.{{ .Minor }}-amd64
-  - ghcr.io/tmpim/casket:{{ .Major }}.{{ .Minor }}-arm64
+      - "ghcr.io/tmpim/casket:latest"
+      - "ghcr.io/tmpim/casket:{{ .Tag }}"
+      - "ghcr.io/tmpim/casket:v{{ .Major }}"
+      - "ghcr.io/tmpim/casket:v{{ .Major }}.{{ .Minor }}"
 
 # Set dist directory to build/ since we have files in dist/
 dist: build
