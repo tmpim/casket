@@ -8,7 +8,8 @@ RUN go mod download
 COPY . /workdir
 WORKDIR /workdir
 
-RUN cd casket && go mod init casket && GOPRIVATE=github.com/tmpim/casket go get "github.com/tmpim/casket@master" \
+RUN cd casket && go mod init casket \
+    && GOPROXY=https://proxy.golang.org,direct GOPRIVATE=github.com/tmpim/casket go get "github.com/tmpim/casket@master" \
     && go mod tidy && go build -o casket
 
 FROM alpine:3
