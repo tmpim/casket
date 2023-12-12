@@ -31,6 +31,10 @@ header,
 	padding-right: 5%;
 }
 
+#summary {	
+	gap: 0.5em 1em;
+}
+
 .filler {
     flex: 1;
 }
@@ -83,10 +87,6 @@ main {
 	border-bottom: 1px solid #9c9c9c;
 	padding-top: 10px;
 	padding-bottom: 10px;
-}
-
-.meta-item {
-	margin-right: 1em;
 }
 
 .dropdown {
@@ -145,6 +145,7 @@ main {
 #filter {
 	padding: 4px;
 	border: 1px solid #cccccc;
+	box-sizing: border-box;
 }
 
 table {
@@ -265,7 +266,19 @@ footer {
 	}
 
 	#filter {
-		max-width: 100px;
+		width: 100%;
+	}
+
+	.meta-item.filter-item {
+		flex: 1;
+	}
+
+	#summary {
+		flex-wrap: wrap;
+	}
+
+	#summary > .filler {
+		flex-basis: 100%;
 	}
 }
 </style>
@@ -328,7 +341,7 @@ footer {
 					{{- if ne 0 .ItemsLimitedTo}}
 					<span class="meta-item">(of which only <b>{{.ItemsLimitedTo}}</b> are displayed)</span>
 					{{- end}}
-					<span class="meta-item"><input type="text" placeholder="filter" id="filter" onkeyup='filter()'></span>
+					<span class="meta-item filter-item"><input type="text" placeholder="filter" id="filter" onkeyup='filter()'></span>
                     <span class="filler"></span>
                     {{- if .ArchiveTypes }}
                     <div class="dropdown" onclick="">
