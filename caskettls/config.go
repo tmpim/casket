@@ -84,6 +84,10 @@ type Config struct {
 	// Manager is how certificates are managed
 	Manager *certmagic.Config
 
+	// NoRedirect will disable the automatic HTTP->HTTPS redirect, regardless
+	// of whether the site is managed or not.
+	NoRedirect bool
+
 	// SelfSigned means that this hostname is
 	// served with a self-signed certificate
 	// that we generated in memory for convenience

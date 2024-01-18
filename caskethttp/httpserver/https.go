@@ -29,7 +29,7 @@ func activateHTTPS(cctx casket.Context) error {
 	operatorPresent := !casket.Started()
 
 	if !casket.Quiet && operatorPresent {
-		fmt.Print("Activating privacy features... ")
+		fmt.Println("Activating privacy features... ")
 	}
 
 	ctx := cctx.(*httpContext)
@@ -147,7 +147,8 @@ func makePlaintextRedirects(allConfigs []*SiteConfig) []*SiteConfig {
 	httpPort := strconv.Itoa(certmagic.HTTPPort)
 	httpsPort := strconv.Itoa(certmagic.HTTPSPort)
 	for i, cfg := range allConfigs {
-		if cfg.TLS.Managed &&
+		if cfg.TLS.Enabled &&
+			!cfg.TLS.NoRedirect &&
 			!hostHasOtherPort(allConfigs, i, httpPort) &&
 			(cfg.Addr.Port == httpsPort || !hostHasOtherPort(allConfigs, i, httpsPort)) {
 			allConfigs = append(allConfigs, redirPlaintextHost(cfg))
@@ -191,6 +192,11 @@ func redirPlaintextHost(cfg *SiteConfig) *SiteConfig {
 		// advanced, and the user should configure HTTP->HTTPS
 		// redirects themselves.)
 		redirPort = ""
+	}
+
+	operatorPresent := !casket.Started()
+	if !casket.Quiet && operatorPresent {
+		fmt.Println("[INFO] Creating automatic HTTP->HTTPS redirect for", cfg.Addr.Host)
 	}
 
 	redirMiddleware := func(next Handler) Handler {

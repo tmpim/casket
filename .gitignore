@@ -16,6 +16,7 @@ access.log
 
 /*.conf
 Casketfile
+Casketfile.*
 !casketfile/
 casket/go.mod
 casket/go.sum

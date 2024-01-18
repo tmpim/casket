@@ -23,8 +23,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/tmpim/certmagic"
 	"github.com/tmpim/casket/caskettls"
+	"github.com/tmpim/certmagic"
 )
 
 func TestRedirPlaintextHost(t *testing.T) {
@@ -153,18 +153,18 @@ func TestHostHasOtherPort(t *testing.T) {
 func TestMakePlaintextRedirects(t *testing.T) {
 	configs := []*SiteConfig{
 		// Happy path = standard redirect from 80 to 443
-		{Addr: Address{Host: "example.com"}, TLS: &caskettls.Config{Managed: true}},
+		{Addr: Address{Host: "example.com"}, TLS: &caskettls.Config{Managed: true, Enabled: true}},
 
 		// Host on port 80 already defined; don't change it (no redirect)
 		{Addr: Address{Host: "sub1.example.com", Port: "80", Scheme: "http"}, TLS: new(caskettls.Config)},
-		{Addr: Address{Host: "sub1.example.com"}, TLS: &caskettls.Config{Managed: true}},
+		{Addr: Address{Host: "sub1.example.com"}, TLS: &caskettls.Config{Managed: true, Enabled: true}},
 
 		// Redirect from port 80 to port 5000 in this case
-		{Addr: Address{Host: "sub2.example.com", Port: "5000"}, TLS: &caskettls.Config{Managed: true}},
+		{Addr: Address{Host: "sub2.example.com", Port: "5000"}, TLS: &caskettls.Config{Managed: true, Enabled: true}},
 
 		// Can redirect from 80 to either 443 or 5001, but choose 443
-		{Addr: Address{Host: "sub3.example.com", Port: "443"}, TLS: &caskettls.Config{Managed: true}},
-		{Addr: Address{Host: "sub3.example.com", Port: "5001", Scheme: "https"}, TLS: &caskettls.Config{Managed: true}},
+		{Addr: Address{Host: "sub3.example.com", Port: "443"}, TLS: &caskettls.Config{Managed: true, Enabled: true}},
+		{Addr: Address{Host: "sub3.example.com", Port: "5001", Scheme: "https"}, TLS: &caskettls.Config{Managed: true, Enabled: true}},
 	}
 
 	result := makePlaintextRedirects(configs)

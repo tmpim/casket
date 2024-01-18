@@ -278,6 +278,8 @@ func setupTLS(c *casket.Controller) error {
 				}
 				parts[0] = "*"
 				config.Hostname = strings.Join(parts, ".")
+			case "no_redirect":
+				config.NoRedirect = true
 			default:
 				return c.Errf("Unknown subdirective '%s'", c.Val())
 			}
