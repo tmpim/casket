@@ -8,6 +8,9 @@ microservices and programmatic configurability.
 Casket will come with all the features you love about Caddy v1, while also
 adding our own touches for convenience and usability.
 
+- [Casket documentation](https://docs.casketserver.com)
+- [Caddy v1 documentation archive](https://caddy.its-em.ma)
+
 ## Building
 
 To build the main casket executable, the following procedure can be used:
