@@ -21,7 +21,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/tmpim/certmagic"
+	"github.com/caddyserver/certmagic"
 	"github.com/tmpim/casket/telemetry"
 )
 
@@ -40,9 +40,9 @@ type configGroup map[string]*Config
 // This function follows nearly the same logic to lookup
 // a hostname as the getCertificate function uses.
 func (cg configGroup) getConfig(hello *tls.ClientHelloInfo) *Config {
-	name := certmagic.NormalizedName(hello.ServerName)
+	name := normalizedName(hello.ServerName)
 	if name == "" {
-		name = certmagic.NormalizedName(certmagic.Default.DefaultServerName)
+		name = normalizedName(certmagic.Default.DefaultServerName)
 	}
 
 	// if SNI is empty, prefer matching IP address (it is
@@ -174,3 +174,9 @@ func (info ClientHelloInfo) Key() string {
 // TLS ClientHellos to telemetry. Disable if doing
 // it from a different package.
 var ClientHelloTelemetry = true
+
+// normalizedName returns a cleaned form of serverName that is
+// used for consistency when referring to a SNI value.
+func normalizedName(serverName string) string {
+	return strings.ToLower(strings.TrimSpace(serverName))
+}

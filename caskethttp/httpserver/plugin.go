@@ -27,12 +27,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/caddyserver/certmagic"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/casketfile"
 	"github.com/tmpim/casket/caskethttp/staticfiles"
 	"github.com/tmpim/casket/caskettls"
 	"github.com/tmpim/casket/telemetry"
-	"github.com/tmpim/certmagic"
 )
 
 const serverType = "http"
@@ -192,13 +192,14 @@ func (h *httpContext) InspectServerBlocks(sourceFile string, serverBlocks []cask
 			// Make our caskettls.Config, which has a pointer to the
 			// instance's certificate cache and enough information
 			// to use automatic HTTPS when the time comes
-			caskettlsConfig, err := caskettls.NewConfig(h.instance)
+			caskettlsConfig, err := caskettls.NewConfig(h.instance, certmagic.ACMEIssuer{
+				AltHTTPPort:    altHTTPPort,
+				AltTLSALPNPort: altTLSALPNPort,
+			})
 			if err != nil {
 				return nil, fmt.Errorf("creating new caskettls configuration: %v", err)
 			}
 			caskettlsConfig.Hostname = addr.Host
-			caskettlsConfig.Manager.AltHTTPPort = altHTTPPort
-			caskettlsConfig.Manager.AltTLSALPNPort = altTLSALPNPort
 
 			// Save the config to our master list, and key it for lookups
 			cfg := &SiteConfig{
@@ -239,7 +240,7 @@ func (h *httpContext) MakeServers() ([]casket.Server, error) {
 	// trusted CA (obviously not a perfect heuristic)
 	var looksLikeProductionCA bool
 	for _, publicCAEndpoint := range caskettls.KnownACMECAs {
-		if strings.Contains(certmagic.Default.CA, publicCAEndpoint) {
+		if strings.Contains(certmagic.DefaultACME.CA, publicCAEndpoint) {
 			looksLikeProductionCA = true
 			break
 		}
@@ -262,7 +263,7 @@ func (h *httpContext) MakeServers() ([]casket.Server, error) {
 				!casket.IsInternal(cfg.Addr.Host) &&
 				!casket.IsInternal(cfg.ListenHost) &&
 				(caskettls.QualifiesForManagedTLS(cfg) ||
-					certmagic.HostQualifies(cfg.Addr.Host)) {
+					certmagic.SubjectQualifiesForPublicCert(cfg.Addr.Host)) {
 				atLeastOneSiteLooksLikeProduction = true
 			}
 		}
@@ -328,7 +329,8 @@ func (h *httpContext) MakeServers() ([]casket.Server, error) {
 }
 
 // normalizedKey returns "normalized" key representation:
-//  scheme and host names are lowered, everything else stays the same
+//
+//	scheme and host names are lowered, everything else stays the same
 func normalizedKey(key string) string {
 	addr, err := standardizeAddress(key)
 	if err != nil {

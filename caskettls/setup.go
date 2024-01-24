@@ -16,6 +16,7 @@ package caskettls
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"encoding/pem"
 	"fmt"
@@ -29,9 +30,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/caddyserver/certmagic"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/telemetry"
-	"github.com/tmpim/certmagic"
 )
 
 func init() {
@@ -66,49 +67,15 @@ func setupTLS(c *casket.Controller) error {
 
 	config.Enabled = true
 
-	// we use certmagic events to collect metrics for telemetry
-	config.Manager.OnEvent = func(event string, data interface{}) {
+	config.Manager.OnEvent = func(ctx context.Context, event string, data map[string]interface{}) error {
 		switch event {
-		case "tls_handshake_started":
-			clientHello := data.(*tls.ClientHelloInfo)
-			if ClientHelloTelemetry && len(clientHello.SupportedVersions) > 0 {
-				// If no other plugin (such as the HTTP server type) is implementing ClientHello telemetry, we do it.
-				// NOTE: The values in the Go standard lib's ClientHelloInfo aren't guaranteed to be in order.
-				info := ClientHelloInfo{
-					Version:                   clientHello.SupportedVersions[0], // report the highest
-					CipherSuites:              clientHello.CipherSuites,
-					ExtensionsUnknown:         true, // no extension info... :(
-					CompressionMethodsUnknown: true, // no compression methods... :(
-					Curves:                    clientHello.SupportedCurves,
-					Points:                    clientHello.SupportedPoints,
-					// We also have, but do not yet use: SignatureSchemes, ServerName, and SupportedProtos (ALPN)
-					// because the standard lib parses some extensions, but our MITM detector generally doesn't.
-				}
-				go telemetry.SetNested("tls_client_hello", info.Key(), info)
+		case "cert_obtained":
+			if data["renewal"] == true {
+				name := data["identifier"].(string)
+				casket.EmitEvent(casket.CertRenewEvent, name)
 			}
-
-		case "tls_handshake_completed":
-			// TODO: This is a "best guess" for now - at this point, we only gave a
-			// certificate to the client; we need something listener-level to be sure
-			go telemetry.Increment("tls_handshake_count")
-
-		case "acme_cert_obtained":
-			go telemetry.Increment("tls_acme_certs_obtained")
-
-		case "acme_cert_renewed":
-			name := data.(string)
-			casket.EmitEvent(casket.CertRenewEvent, name)
-			go telemetry.Increment("tls_acme_certs_renewed")
-
-		case "acme_cert_revoked":
-			telemetry.Increment("acme_certs_revoked")
-
-		case "cached_managed_cert":
-			telemetry.Increment("tls_managed_cert_count")
-
-		case "cached_unmanaged_cert":
-			telemetry.Increment("tls_unmanaged_cert_count")
 		}
+		return nil
 	}
 
 	for c.Next() {
@@ -132,7 +99,7 @@ func setupTLS(c *casket.Controller) error {
 			case "self_signed":
 				config.SelfSigned = true
 			default:
-				config.Manager.Email = args[0]
+				config.Issuer.Email = args[0]
 			}
 		case 2:
 			certificateFile = args[0]
@@ -150,14 +117,15 @@ func setupTLS(c *casket.Controller) error {
 				if len(arg) != 1 {
 					return c.ArgErr()
 				}
-				config.Manager.CA = arg[0]
+				config.Issuer.CA = arg[0]
 			case "key_type":
 				arg := c.RemainingArgs()
 				value, ok := supportedKeyTypes[strings.ToUpper(arg[0])]
 				if !ok {
 					return c.Errf("Wrong key type name or key type not supported: '%s'", c.Val())
 				}
-				config.Manager.KeyType = value
+				config.KeyType = value
+				config.Manager.KeySource = certmagic.StandardKeyGenerator{KeyType: value}
 			case "protocols":
 				args := c.RemainingArgs()
 				if len(args) == 1 {
@@ -254,7 +222,9 @@ func setupTLS(c *casket.Controller) error {
 				if err != nil {
 					return c.Errf("Setting up DNS provider '%s': %v", dnsProvName, err)
 				}
-				config.Manager.DNSProvider = dnsProv
+				config.Issuer.DNS01Solver = &certmagic.DNS01Solver{
+					DNSProvider: dnsProv,
+				}
 			case "alpn":
 				args := c.RemainingArgs()
 				if len(args) == 0 {
@@ -266,7 +236,7 @@ func setupTLS(c *casket.Controller) error {
 			case "must_staple":
 				config.Manager.MustStaple = true
 			case "wildcard":
-				if !certmagic.HostQualifies(config.Hostname) {
+				if !certmagic.SubjectQualifiesForPublicCert(config.Hostname) {
 					return c.Errf("Hostname '%s' does not qualify for managed TLS, so cannot manage wildcard certificate for it", config.Hostname)
 				}
 				if strings.Contains(config.Hostname, "*") {
@@ -305,7 +275,7 @@ func setupTLS(c *casket.Controller) error {
 				if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
 					return c.Err("ask URL must use http or https")
 				}
-				config.Manager.OnDemand.DecisionFunc = func(name string) error {
+				config.Manager.OnDemand.DecisionFunc = func(ctx context.Context, name string) error {
 					askURLParsed, err := url.Parse(askURL)
 					if err != nil {
 						return fmt.Errorf("parsing ask URL: %v", err)
@@ -338,7 +308,7 @@ func setupTLS(c *casket.Controller) error {
 
 		// load a single certificate and key, if specified
 		if certificateFile != "" && keyFile != "" {
-			err := config.Manager.CacheUnmanagedCertificatePEMFile(certificateFile, keyFile, nil)
+			_, err := config.Manager.CacheUnmanagedCertificatePEMFile(context.TODO(), certificateFile, keyFile, nil)
 			if err != nil {
 				return c.Errf("Unable to load certificate and key files for '%s': %v", c.Key, err)
 			}
@@ -360,12 +330,12 @@ func setupTLS(c *casket.Controller) error {
 	if config.SelfSigned {
 		ssCert, err := newSelfSignedCertificate(selfSignedConfig{
 			SAN:     []string{config.Hostname},
-			KeyType: config.Manager.KeyType,
+			KeyType: config.KeyType,
 		})
 		if err != nil {
 			return fmt.Errorf("self-signed certificate generation: %v", err)
 		}
-		err = config.Manager.CacheUnmanagedTLSCertificate(ssCert, nil)
+		_, err = config.Manager.CacheUnmanagedTLSCertificate(context.TODO(), ssCert, nil)
 		if err != nil {
 			return fmt.Errorf("self-signed: %v", err)
 		}
@@ -461,7 +431,7 @@ func loadCertsInDir(cfg *Config, c *casket.Controller, dir string) error {
 				return c.Errf("%s: no private key block found", path)
 			}
 
-			err = cfg.Manager.CacheUnmanagedCertificatePEMBytes(certPEMBytes, keyPEMBytes, nil)
+			_, err = cfg.Manager.CacheUnmanagedCertificatePEMBytes(context.TODO(), certPEMBytes, keyPEMBytes, nil)
 			if err != nil {
 				return c.Errf("%s: failed to load cert and key for '%s': %v", path, c.Key, err)
 			}

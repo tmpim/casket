@@ -29,9 +29,10 @@
 package caskettls
 
 import (
+	"context"
+	"github.com/caddyserver/certmagic"
 	"github.com/go-acme/lego/v4/challenge"
 	"github.com/tmpim/casket"
-	"github.com/tmpim/certmagic"
 )
 
 // ConfigHolder is any type that has a Config; it presumably is
@@ -71,13 +72,15 @@ func QualifiesForManagedTLS(c ConfigHolder) bool {
 
 		// we get can't certs for some kinds of hostnames, but
 		// on-demand TLS allows empty hostnames at startup
-		(certmagic.HostQualifies(c.Host()) || onDemand)
+		(certmagic.SubjectQualifiesForPublicCert(c.Host()) || onDemand)
 }
 
-// Revoke revokes the certificate fro host via the ACME protocol.
+// Revoke revokes the certificate for host via the ACME protocol.
 // It assumes the certificate was obtained from certmagic.CA.
 func Revoke(domainName string) error {
-	return certmagic.NewDefault().RevokeCert(domainName, true)
+	// TODO: Bubble down certificate revocation reasons per RFC 5280. Is this function only ever called by human
+	//       interaction?
+	return certmagic.NewDefault().RevokeCert(context.TODO(), domainName, 0, true)
 }
 
 // KnownACMECAs is a list of ACME directory endpoints of

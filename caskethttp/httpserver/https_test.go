@@ -23,8 +23,8 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/caddyserver/certmagic"
 	"github.com/tmpim/casket/caskettls"
-	"github.com/tmpim/certmagic"
 )
 
 func TestRedirPlaintextHost(t *testing.T) {

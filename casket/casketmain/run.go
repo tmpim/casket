@@ -16,9 +16,11 @@ package casketmain
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"flag"
 	"fmt"
+	"go.uber.org/zap"
 	"io"
 	"io/ioutil"
 	"log"
@@ -29,13 +31,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/caddyserver/certmagic"
 	"github.com/google/uuid"
 	"github.com/klauspost/cpuid"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/casketfile"
 	"github.com/tmpim/casket/caskettls"
 	"github.com/tmpim/casket/telemetry"
-	"github.com/tmpim/certmagic"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 
 	_ "github.com/tmpim/casket/caskethttp" // plug in the HTTP server type
@@ -45,11 +47,11 @@ import (
 func init() {
 	casket.TrapSignals()
 
-	flag.BoolVar(&certmagic.Default.Agreed, "agree", true, "Agree to the CA's Subscriber Agreement")
-	flag.StringVar(&certmagic.Default.CA, "ca", certmagic.Default.CA, "URL to certificate authority's ACME server directory")
+	flag.BoolVar(&certmagic.DefaultACME.Agreed, "agree", true, "Agree to the CA's Subscriber Agreement")
+	flag.StringVar(&certmagic.DefaultACME.CA, "ca", certmagic.DefaultACME.CA, "URL to certificate authority's ACME server directory")
 	flag.StringVar(&certmagic.Default.DefaultServerName, "default-sni", certmagic.Default.DefaultServerName, "If a ClientHello ServerName is empty, use this ServerName to choose a TLS certificate")
-	flag.BoolVar(&certmagic.Default.DisableHTTPChallenge, "disable-http-challenge", certmagic.Default.DisableHTTPChallenge, "Disable the ACME HTTP challenge")
-	flag.BoolVar(&certmagic.Default.DisableTLSALPNChallenge, "disable-tls-alpn-challenge", certmagic.Default.DisableTLSALPNChallenge, "Disable the ACME TLS-ALPN challenge")
+	flag.BoolVar(&certmagic.DefaultACME.DisableHTTPChallenge, "disable-http-challenge", certmagic.DefaultACME.DisableHTTPChallenge, "Disable the ACME HTTP challenge")
+	flag.BoolVar(&certmagic.DefaultACME.DisableTLSALPNChallenge, "disable-tls-alpn-challenge", certmagic.DefaultACME.DisableTLSALPNChallenge, "Disable the ACME TLS-ALPN challenge")
 	flag.StringVar(&disabledMetrics, "disabled-metrics", "", "Comma-separated list of telemetry metrics to disable")
 	flag.StringVar(&conf, "conf", "", "Casketfile to load (default \""+casket.DefaultConfigFile+"\")")
 	flag.StringVar(&cpu, "cpu", "100%", "CPU cap")
@@ -57,7 +59,7 @@ func init() {
 	flag.StringVar(&envFile, "envfile", "", "Path to file with environment variables to load in KEY=VALUE format")
 	flag.BoolVar(&fromJSON, "json-to-casketfile", false, "From JSON stdin to Casketfile stdout")
 	flag.BoolVar(&plugins, "plugins", false, "List installed plugins")
-	flag.StringVar(&certmagic.Default.Email, "email", "", "Default ACME CA account email address")
+	flag.StringVar(&certmagic.DefaultACME.Email, "email", "", "Default ACME CA account email address")
 	flag.DurationVar(&certmagic.HTTPTimeout, "catimeout", certmagic.HTTPTimeout, "Default ACME CA HTTP timeout")
 	flag.StringVar(&logfile, "log", "", "Process log file")
 	flag.BoolVar(&logTimestamps, "log-timestamps", true, "Enable timestamps for the process log")
@@ -84,7 +86,10 @@ func Run() {
 
 	casket.AppName = appName
 	casket.AppVersion = module.Version
-	casket.OnProcessExit = append(casket.OnProcessExit, certmagic.CleanUpOwnLocks)
+	casket.OnProcessExit = append(casket.OnProcessExit, func() {
+		// TODO: Redirect to our own logger instead of zap.NewNop()
+		certmagic.CleanUpOwnLocks(context.TODO(), zap.NewNop())
+	})
 	certmagic.UserAgent = appName + "/" + cleanModVersion
 
 	if !logTimestamps {
