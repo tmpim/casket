@@ -351,9 +351,13 @@ func GetConfig(c *casket.Controller) *SiteConfig {
 	// we should only get here during tests because directive
 	// actions typically skip the server blocks where we make
 	// the configs
+	magic := certmagic.NewDefault()
+	issuer := certmagic.NewACMEIssuer(magic, certmagic.ACMEIssuer{})
+	magic.Issuers = []certmagic.Issuer{issuer}
+
 	cfg := &SiteConfig{
 		Root:       Root,
-		TLS:        &caskettls.Config{Manager: certmagic.NewDefault()},
+		TLS:        &caskettls.Config{Manager: magic, Issuer: issuer},
 		IndexPages: staticfiles.DefaultIndexPages,
 	}
 	ctx.saveConfig(key, cfg)

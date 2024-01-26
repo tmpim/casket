@@ -41,8 +41,8 @@ import (
 
 	"golang.org/x/net/http2"
 
-	"github.com/lucas-clemente/quic-go"
-	"github.com/lucas-clemente/quic-go/http3"
+	"github.com/quic-go/quic-go"
+	"github.com/quic-go/quic-go/http3"
 	"github.com/tmpim/casket/caskethttp/httpserver"
 )
 
@@ -257,7 +257,8 @@ func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, t
 		rp.Transport = &http3.RoundTripper{
 			QuicConfig: &quic.Config{
 				HandshakeIdleTimeout: defaultCryptoHandshakeTimeout,
-				KeepAlive:            true,
+				// https://github.com/quic-go/quic-go/pull/3444
+				KeepAlivePeriod: timeout / 2,
 			},
 		}
 	} else if keepalive != http.DefaultMaxIdleConnsPerHost || strings.HasPrefix(target.Scheme, "srv") {

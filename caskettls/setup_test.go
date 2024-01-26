@@ -21,9 +21,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/go-acme/lego/v4/certcrypto"
+	"github.com/caddyserver/certmagic"
 	"github.com/tmpim/casket"
-	"github.com/tmpim/certmagic"
 )
 
 func TestMain(m *testing.M) {
@@ -336,7 +335,7 @@ func TestSetupParseWithCAUrl(t *testing.T) {
 				ca 1 2
 			}`, true, ""},
 	} {
-		cfg := &Config{Manager: &certmagic.Config{}}
+		cfg := &Config{Manager: &certmagic.Config{}, Issuer: &certmagic.ACMEIssuer{}}
 		RegisterConfigGetter("", func(c *casket.Controller) *Config { return cfg })
 		c := casket.NewTestController("", caseData.params)
 
@@ -351,8 +350,8 @@ func TestSetupParseWithCAUrl(t *testing.T) {
 			t.Errorf("In case %d: Expected no errors, got: %v", caseNumber, err)
 		}
 
-		if cfg.Manager.CA != caseData.expectedCAUrl {
-			t.Errorf("Expected '%v' as CAUrl, got %#v", caseData.expectedCAUrl, cfg.Manager.CA)
+		if cfg.Issuer.CA != caseData.expectedCAUrl {
+			t.Errorf("Expected '%v' as CAUrl, got %#v", caseData.expectedCAUrl, cfg.Issuer.CA)
 		}
 	}
 }
@@ -370,8 +369,8 @@ func TestSetupParseWithKeyType(t *testing.T) {
 		t.Errorf("Expected no errors, got: %v", err)
 	}
 
-	if cfg.Manager.KeyType != certcrypto.EC384 {
-		t.Errorf("Expected 'P384' as KeyType, got %#v", cfg.Manager.KeyType)
+	if cfg.KeyType != certmagic.P384 {
+		t.Errorf("Expected 'P384' as KeyType, got %#v", cfg.KeyType)
 	}
 }
 
@@ -427,7 +426,7 @@ func TestSetupParseWithOneTLSProtocol(t *testing.T) {
 func TestSetupParseWithEmail(t *testing.T) {
 	email := "user@example.com"
 	params := "tls " + email
-	cfg := &Config{Manager: &certmagic.Config{}}
+	cfg := &Config{Manager: &certmagic.Config{}, Issuer: &certmagic.ACMEIssuer{}}
 	RegisterConfigGetter("", func(c *casket.Controller) *Config { return cfg })
 	c := casket.NewTestController("", params)
 
@@ -439,8 +438,8 @@ func TestSetupParseWithEmail(t *testing.T) {
 	if cfg.ACMEEmail != email {
 		t.Errorf("Expected cfg.ACMEEmail to be %#v, got %#v", email, cfg.ACMEEmail)
 	}
-	if cfg.Manager.Email != email {
-		t.Errorf("Expected cfg.Manager.Email to be %#v, got %#v", email, cfg.Manager.Email)
+	if cfg.Issuer.Email != email {
+		t.Errorf("Expected cfg.Issuer.Email to be %#v, got %#v", email, cfg.Issuer.Email)
 	}
 }
 
