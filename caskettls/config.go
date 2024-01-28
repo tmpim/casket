@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/caddyserver/certmagic"
-	"github.com/go-acme/lego/v4/challenge/tlsalpn01"
 	"github.com/klauspost/cpuid"
 	"github.com/tmpim/casket"
 )
@@ -216,13 +215,13 @@ func (c *Config) buildStandardTLSConfig() error {
 	// ensure ALPN includes the ACME TLS-ALPN protocol
 	var alpnFound bool
 	for _, a := range c.ALPN {
-		if a == tlsalpn01.ACMETLS1Protocol {
+		if a == "acme-tls/1" {
 			alpnFound = true
 			break
 		}
 	}
 	if !alpnFound {
-		c.ALPN = append(c.ALPN, tlsalpn01.ACMETLS1Protocol)
+		c.ALPN = append(c.ALPN, "acme-tls/1")
 	}
 
 	config.MinVersion = c.ProtocolMinVersion

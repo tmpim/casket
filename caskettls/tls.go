@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// package caskettls facilitates the management of TLS assets and integrates
+// Package caskettls facilitates the management of TLS assets and integrates
 // Let's Encrypt functionality into Casket with first-class support for
 // creating and renewing certificates automatically. It also implements
 // the tls directive. It's mostly powered by the CertMagic package.
@@ -91,7 +91,7 @@ var KnownACMECAs = []string{
 
 // DNSProviderConstructor is a function that takes credentials and
 // returns a type that can solve the ACME DNS challenges.
-type DNSProviderConstructor func(credentials ...string) (certmagic.ACMEDNSProvider, error)
+type DNSProviderConstructor func(c *casket.Controller) (certmagic.ACMEDNSProvider, error)
 
 // dnsProviders is the list of DNS providers that have been plugged in.
 var dnsProviders = make(map[string]DNSProviderConstructor)

@@ -202,23 +202,16 @@ func setupTLS(c *casket.Controller) error {
 				c.Args(&askURL)
 				onDemand = true
 			case "dns":
-				args := c.RemainingArgs()
-				if len(args) < 1 {
+				if !c.NextArg() {
 					return c.ArgErr()
 				}
-				// TODO: we can get rid of DNS provider plugins with this one line
-				// of code; however, currently (Dec. 2018) this adds about 20 MB
-				// of bloat to the Casket binary, doubling its size to ~40 MB...!
-				// dnsProv, err := dns.NewDNSChallengeProviderByName(args[0])
-				// if err != nil {
-				// 	return c.Errf("Configuring DNS provider '%s': %v", args[0], err)
-				// }
-				dnsProvName := args[0]
+
+				dnsProvName := c.Val()
 				dnsProvConstructor, ok := dnsProviders[dnsProvName]
 				if !ok {
 					return c.Errf("Unknown DNS provider by name '%s'", dnsProvName)
 				}
-				dnsProv, err := dnsProvConstructor(args[1:]...)
+				dnsProv, err := dnsProvConstructor(c)
 				if err != nil {
 					return c.Errf("Setting up DNS provider '%s': %v", dnsProvName, err)
 				}

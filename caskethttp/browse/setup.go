@@ -168,5 +168,6 @@ func browseParse(c *casket.Controller) ([]Config, error) {
 }
 
 // The default template to use when serving up directory listings
+//
 //go:embed default_template.html
 var defaultTemplate string

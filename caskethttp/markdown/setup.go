@@ -18,9 +18,9 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/russross/blackfriday"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/caskethttp/httpserver"
-	"github.com/russross/blackfriday"
 )
 
 func init() {
