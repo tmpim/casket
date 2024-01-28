@@ -132,11 +132,14 @@ func NewConfig(inst *casket.Instance, template certmagic.ACMEIssuer) (*Config, e
 				if ok {
 					for hostname, cfg := range cfgMap {
 						if cfg.Manager != nil && hostname == cert.Names[0] {
-							return cfg.Manager, nil
+							return certmagic.New(certCache, *cfg.Manager), nil
 						}
 					}
 				}
-				return certmagic.NewDefault(), nil
+
+				// Create a default certificate with the same cache as the others (to prevent a "config returned for
+				// certificate is not nil and points to different cache" error)
+				return certmagic.New(certCache, certmagic.Config{}), nil
 			},
 		})
 
