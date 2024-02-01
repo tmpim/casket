@@ -81,16 +81,24 @@ func init() {
 func Run() {
 	flag.Parse()
 
-	module := getBuildModule()
-	cleanModVersion := strings.TrimPrefix(module.Version, "v")
-
 	casket.AppName = appName
-	casket.AppVersion = module.Version
 	casket.OnProcessExit = append(casket.OnProcessExit, func() {
 		// TODO: Redirect to our own logger instead of zap.NewNop()
 		certmagic.CleanUpOwnLocks(context.TODO(), zap.NewNop())
 	})
-	certmagic.UserAgent = appName + "/" + cleanModVersion
+
+	// AppVersion may be set by ldflags or by the module
+	module := getBuildModule()
+	if module.Version != "" && module.Version != "(devel)" {
+		casket.AppVersion = module.Version
+	}
+
+	if casket.AppVersion == "" {
+		casket.AppVersion = "unknown"
+	}
+
+	cleanVersion := strings.TrimPrefix(casket.AppVersion, "v")
+	certmagic.UserAgent = appName + "/" + cleanVersion
 
 	if !logTimestamps {
 		// Disable timestamps for logging
@@ -161,9 +169,9 @@ func Run() {
 	if version {
 		if module.Sum != "" {
 			// a build with a known version will also have a checksum
-			fmt.Printf("Casket %s (%s)\n", module.Version, module.Sum)
+			fmt.Printf("Casket %s (%s)\n", casket.AppVersion, module.Sum)
 		} else {
-			fmt.Println(module.Version)
+			fmt.Println("Casket " + casket.AppVersion)
 		}
 		os.Exit(0)
 	}
@@ -202,7 +210,7 @@ func Run() {
 	}
 
 	// Log Casket version before start
-	log.Printf("[INFO] Casket version: %s", module.Version)
+	log.Printf("[INFO] Casket version: %s", casket.AppVersion)
 
 	// Start your engines
 	instance, err := casket.Start(casketfileinput)
@@ -211,7 +219,7 @@ func Run() {
 	}
 
 	// Begin telemetry (these are no-ops if telemetry disabled)
-	telemetry.Set("casket_version", module.Version)
+	telemetry.Set("casket_version", casket.AppVersion)
 	telemetry.Set("num_listeners", len(instance.Servers()))
 	telemetry.Set("server_type", serverType)
 	telemetry.Set("os", runtime.GOOS)

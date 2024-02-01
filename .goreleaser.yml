@@ -28,10 +28,6 @@ builds:
 # Set dist directory to build/ since we have files in dist/
 dist: build
 
-before:
-  hooks:
-    - sh ./.prerelease.sh
-
 archives:
   - id: casket
     builds:
