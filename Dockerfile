@@ -1,16 +1,15 @@
-FROM golang:1.17-bullseye AS builder
+FROM golang:1.19-bullseye AS builder
 
 WORKDIR /workdir
 
 COPY go.mod go.sum /workdir
-RUN GOPROXY=https://proxy.golang.org,direct go mod download
+ENV GOPROXY=https://proxy.golang.org,direct
+RUN go mod download
 
 COPY . /workdir
-WORKDIR /workdir
 
-RUN cd casket && go mod init casket \
-    && GOPROXY=https://proxy.golang.org,direct GOPRIVATE=github.com/tmpim/casket go get "github.com/tmpim/casket@master" \
-    && go mod tidy && CGO_ENABLED=0 go build -o casket .
+WORKDIR /workdir/casket
+RUN CGO_ENABLED=0 go build -o casket .
 
 FROM alpine:3
 

@@ -20,7 +20,7 @@ require (
 	github.com/rakyll/statik v0.1.7
 	github.com/russross/blackfriday v1.6.0
 	github.com/tmpim/casket-plugins v0.0.4-0.20210411234607-8b023eeb664d
-	github.com/tmpim/dnsproviders v0.4.2
+	github.com/tmpim/dnsproviders v0.5.0
 	go.uber.org/zap v1.26.0
 	golang.org/x/net v0.20.0
 	gopkg.in/mcuadros/go-syslog.v2 v2.3.0
