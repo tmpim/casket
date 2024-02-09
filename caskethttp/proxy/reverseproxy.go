@@ -105,15 +105,9 @@ type ReverseProxy struct {
 	srvResolver srvResolver
 }
 
-// Though the relevant directive prefix is just "unix:", url.Parse
-// will - assuming the regular URL scheme - add additional slashes
-// as if "unix" was a request protocol.
-// What we need is just the path, so if "unix:/var/run/www.socket"
-// was the proxy directive, the parsed hostName would be
-// "unix:///var/run/www.socket", hence the ambiguous trimming.
 func socketDial(hostName string, timeout time.Duration) func(network, addr string) (conn net.Conn, err error) {
 	return func(network, addr string) (conn net.Conn, err error) {
-		return net.DialTimeout("unix", hostName[len("unix://"):], timeout)
+		return net.DialTimeout("unix", hostName[len("unix:"):], timeout)
 	}
 }
 
@@ -216,8 +210,7 @@ func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, t
 		// unix:/var/run/www.socket will thus set the requested path
 		// to /var/run/www.socket/test, rendering paths useless.
 		if target.Scheme == "unix" {
-			// See comment on socketDial for the trim
-			socketPrefix := target.String()[len("unix://"):]
+			socketPrefix := target.String()[len("unix:"):]
 			req.URL.Path = strings.TrimPrefix(req.URL.Path, socketPrefix)
 			if req.URL.Opaque != "" {
 				req.URL.Opaque = strings.TrimPrefix(req.URL.Opaque, socketPrefix)
