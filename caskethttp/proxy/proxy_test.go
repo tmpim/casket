@@ -548,10 +548,6 @@ func TestWebSocketReverseProxyFromWSSClient(t *testing.T) {
 }
 
 func TestUnixSocketProxy(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		return
-	}
-
 	trialMsg := "Is it working?"
 
 	var proxySuccess bool
@@ -705,10 +701,6 @@ func TestUnixSocketProxyPaths(t *testing.T) {
 		if actualMsg != test.expected {
 			t.Errorf("Expected '%s' but got '%s' instead", test.expected, actualMsg)
 		}
-	}
-
-	if runtime.GOOS == "windows" {
-		return
 	}
 
 	for _, test := range tests {
