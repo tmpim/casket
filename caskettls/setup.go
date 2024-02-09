@@ -32,7 +32,6 @@ import (
 
 	"github.com/caddyserver/certmagic"
 	"github.com/tmpim/casket"
-	"github.com/tmpim/casket/telemetry"
 )
 
 func init() {
@@ -332,7 +331,6 @@ func setupTLS(c *casket.Controller) error {
 		if err != nil {
 			return fmt.Errorf("self-signed: %v", err)
 		}
-		telemetry.Increment("tls_self_signed_count")
 	}
 
 	// store this as a custom config

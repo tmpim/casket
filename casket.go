@@ -16,14 +16,14 @@
 //
 // To use this package:
 //
-//   1. Set the AppName and AppVersion variables.
-//   2. Call LoadCasketfile() to get the Casketfile.
-//      Pass in the name of the server type (like "http").
-//      Make sure the server type's package is imported
-//      (import _ "github.com/tmpim/casket/caskethttp").
-//   3. Call casket.Start() to start Casket. You get back
-//      an Instance, on which you can call Restart() to
-//      restart it or Stop() to stop it.
+//  1. Set the AppName and AppVersion variables.
+//  2. Call LoadCasketfile() to get the Casketfile.
+//     Pass in the name of the server type (like "http").
+//     Make sure the server type's package is imported
+//     (import _ "github.com/tmpim/casket/caskethttp").
+//  3. Call casket.Start() to start Casket. You get back
+//     an Instance, on which you can call Restart() to
+//     restart it or Stop() to stop it.
 //
 // You should call Wait() on your instance to wait for
 // all servers to quit before your process exits.
@@ -44,7 +44,6 @@ import (
 	"time"
 
 	"github.com/tmpim/casket/casketfile"
-	"github.com/tmpim/casket/telemetry"
 )
 
 // Configurable application parameters
@@ -600,12 +599,6 @@ func ValidateAndExecuteDirectives(cdyfile Input, inst *Instance, justValidate bo
 		return err
 	}
 
-	for _, sb := range sblocks {
-		for dir := range sb.Tokens {
-			telemetry.AppendUnique("directives", dir)
-		}
-	}
-
 	inst.context = stype.NewContext(inst)
 	if inst.context == nil {
 		return fmt.Errorf("server type %s produced a nil Context", stypeName)
@@ -615,8 +608,6 @@ func ValidateAndExecuteDirectives(cdyfile Input, inst *Instance, justValidate bo
 	if err != nil {
 		return fmt.Errorf("error inspecting server blocks: %v", err)
 	}
-
-	telemetry.Set("num_server_blocks", len(sblocks))
 
 	return executeDirectives(inst, cdyfile.Path(), stype.Directives(), sblocks, justValidate)
 }

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !windows && !plan9 && !nacl && !js
 // +build !windows,!plan9,!nacl,!js
 
 package casket
@@ -21,8 +22,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/tmpim/casket/telemetry"
 )
 
 // trapSignalsPosix captures POSIX-only signals.
@@ -32,6 +31,7 @@ func trapSignalsPosix() {
 		signal.Notify(sigchan, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGUSR2)
 
 		for sig := range sigchan {
+			// ignore SIGHUP; this signal is sometimes sent outside of the user's control
 			switch sig {
 			case syscall.SIGQUIT:
 				log.Println("[INFO] SIGQUIT: Quitting process immediately")
@@ -52,14 +52,10 @@ func trapSignalsPosix() {
 					exitCode = 3
 				}
 
-				telemetry.AppendUnique("sigtrap", "SIGTERM")
-				go telemetry.StopEmitting() // won't finish in time, but that's OK - just don't block
-
 				os.Exit(exitCode)
 
 			case syscall.SIGUSR1:
 				log.Println("[INFO] SIGUSR1: Reloading")
-				go telemetry.AppendUnique("sigtrap", "SIGUSR1")
 
 				// Start with the existing Casketfile
 				casketfileToUse, inst, err := getCurrentCasketfile()
@@ -100,14 +96,10 @@ func trapSignalsPosix() {
 
 			case syscall.SIGUSR2:
 				log.Println("[INFO] SIGUSR2: Upgrading")
-				go telemetry.AppendUnique("sigtrap", "SIGUSR2")
 				if err := Upgrade(); err != nil {
 					log.Printf("[ERROR] SIGUSR2: upgrading: %v", err)
 				}
 
-			case syscall.SIGHUP:
-				// ignore; this signal is sometimes sent outside of the user's control
-				go telemetry.AppendUnique("sigtrap", "SIGHUP")
 			}
 		}
 	}()

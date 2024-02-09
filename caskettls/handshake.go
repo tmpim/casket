@@ -16,13 +16,11 @@ package caskettls
 
 import (
 	"crypto/tls"
-	"fmt"
 	"log"
 	"net"
 	"strings"
 
 	"github.com/caddyserver/certmagic"
-	"github.com/tmpim/casket/telemetry"
 )
 
 // configGroup is a type that keys configs by their hostname
@@ -154,26 +152,6 @@ type ClientHelloInfo struct {
 	ExtensionsUnknown         bool `json:"-"`
 	CompressionMethodsUnknown bool `json:"-"`
 }
-
-// Key returns a standardized string form of the data in info,
-// useful for identifying duplicates.
-func (info ClientHelloInfo) Key() string {
-	extensions, compressionMethods := "?", "?"
-	if !info.ExtensionsUnknown {
-		extensions = fmt.Sprintf("%x", info.Extensions)
-	}
-	if !info.CompressionMethodsUnknown {
-		compressionMethods = fmt.Sprintf("%x", info.CompressionMethods)
-	}
-	return telemetry.FastHash([]byte(fmt.Sprintf("%x-%x-%s-%s-%x-%x",
-		info.Version, info.CipherSuites, extensions,
-		compressionMethods, info.Curves, info.Points)))
-}
-
-// ClientHelloTelemetry determines whether to report
-// TLS ClientHellos to telemetry. Disable if doing
-// it from a different package.
-var ClientHelloTelemetry = true
 
 // normalizedName returns a cleaned form of serverName that is
 // used for consistency when referring to a SNI value.

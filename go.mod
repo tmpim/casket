@@ -68,7 +68,6 @@ require (
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
@@ -130,8 +129,6 @@ require (
 	github.com/prometheus/common v0.15.0 // indirect
 	github.com/prometheus/procfs v0.2.0 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
-	github.com/quic-go/qtls-go1-19 v0.3.3 // indirect
-	github.com/quic-go/qtls-go1-20 v0.4.1 // indirect
 	github.com/sirupsen/logrus v1.6.0 // indirect
 	github.com/tidwall/gjson v1.6.4 // indirect
 	github.com/tidwall/match v1.0.1 // indirect

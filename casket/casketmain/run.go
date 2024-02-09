@@ -32,13 +32,10 @@ import (
 	"strings"
 
 	"github.com/caddyserver/certmagic"
-	"github.com/google/uuid"
-	"github.com/klauspost/cpuid"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/casketfile"
 	"github.com/tmpim/casket/caskettls"
-	"github.com/tmpim/casket/telemetry"
-	lumberjack "gopkg.in/natefinch/lumberjack.v2"
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	_ "github.com/tmpim/casket/caskethttp" // plug in the HTTP server type
 	// This is where other plugins get plugged in (imported)
@@ -52,7 +49,6 @@ func init() {
 	flag.StringVar(&certmagic.Default.DefaultServerName, "default-sni", certmagic.Default.DefaultServerName, "If a ClientHello ServerName is empty, use this ServerName to choose a TLS certificate")
 	flag.BoolVar(&certmagic.DefaultACME.DisableHTTPChallenge, "disable-http-challenge", certmagic.DefaultACME.DisableHTTPChallenge, "Disable the ACME HTTP challenge")
 	flag.BoolVar(&certmagic.DefaultACME.DisableTLSALPNChallenge, "disable-tls-alpn-challenge", certmagic.DefaultACME.DisableTLSALPNChallenge, "Disable the ACME TLS-ALPN challenge")
-	flag.StringVar(&disabledMetrics, "disabled-metrics", "", "Comma-separated list of telemetry metrics to disable")
 	flag.StringVar(&conf, "conf", "", "Casketfile to load (default \""+casket.DefaultConfigFile+"\")")
 	flag.StringVar(&cpu, "cpu", "100%", "CPU cap")
 	flag.BoolVar(&printEnv, "env", false, "Enable to print environment variables")
@@ -147,16 +143,6 @@ func Run() {
 		}
 	}
 
-	// initialize telemetry client
-	if EnableTelemetry {
-		err := initTelemetry()
-		if err != nil {
-			mustLogFatalf("[ERROR] Initializing telemetry: %v", err)
-		}
-	} else if disabledMetrics != "" {
-		mustLogFatalf("[ERROR] Cannot disable specific metrics because telemetry is disabled")
-	}
-
 	// Check for one-time actions
 	if revoke != "" {
 		err := caskettls.Revoke(revoke)
@@ -217,26 +203,6 @@ func Run() {
 	if err != nil {
 		mustLogFatalf("%v", err)
 	}
-
-	// Begin telemetry (these are no-ops if telemetry disabled)
-	telemetry.Set("casket_version", casket.AppVersion)
-	telemetry.Set("num_listeners", len(instance.Servers()))
-	telemetry.Set("server_type", serverType)
-	telemetry.Set("os", runtime.GOOS)
-	telemetry.Set("arch", runtime.GOARCH)
-	telemetry.Set("cpu", struct {
-		BrandName  string `json:"brand_name,omitempty"`
-		NumLogical int    `json:"num_logical,omitempty"`
-		AESNI      bool   `json:"aes_ni,omitempty"`
-	}{
-		BrandName:  cpuid.CPU.BrandName,
-		NumLogical: runtime.NumCPU(),
-		AESNI:      cpuid.CPU.AesNi(),
-	})
-	if containerized := detectContainer(); containerized {
-		telemetry.Set("container", containerized)
-	}
-	telemetry.StartEmitting()
 
 	// Twiddle your thumbs
 	instance.Wait()
@@ -432,78 +398,6 @@ func detectContainer() bool {
 	return false
 }
 
-// initTelemetry initializes the telemetry engine.
-func initTelemetry() error {
-	uuidFilename := filepath.Join(casket.AssetsPath(), "uuid")
-	if customUUIDFile := os.Getenv("CASKET_UUID_FILE"); customUUIDFile != "" {
-		uuidFilename = customUUIDFile
-	}
-
-	newUUID := func() uuid.UUID {
-		id := uuid.New()
-		err := os.MkdirAll(casket.AssetsPath(), 0700)
-		if err != nil {
-			log.Printf("[ERROR] Persisting instance UUID: %v", err)
-			return id
-		}
-		err = ioutil.WriteFile(uuidFilename, []byte(id.String()), 0600) // human-readable as a string
-		if err != nil {
-			log.Printf("[ERROR] Persisting instance UUID: %v", err)
-		}
-		return id
-	}
-
-	var id uuid.UUID
-
-	// load UUID from storage, or create one if we don't have one
-	if uuidFile, err := os.Open(uuidFilename); os.IsNotExist(err) {
-		// no UUID exists yet; create a new one and persist it
-		id = newUUID()
-	} else if err != nil {
-		log.Printf("[ERROR] Loading persistent UUID: %v", err)
-		id = newUUID()
-	} else {
-		defer uuidFile.Close()
-		uuidBytes, err := ioutil.ReadAll(uuidFile)
-		if err != nil {
-			log.Printf("[ERROR] Reading persistent UUID: %v", err)
-			id = newUUID()
-		} else {
-			id, err = uuid.ParseBytes(uuidBytes)
-			if err != nil {
-				log.Printf("[ERROR] Parsing UUID: %v", err)
-				id = newUUID()
-			}
-		}
-	}
-
-	// parse and check the list of disabled metrics
-	var disabledMetricsSlice []string
-	if len(disabledMetrics) > 0 {
-		if len(disabledMetrics) > 1024 {
-			// mitigate disk space exhaustion at the collection endpoint
-			return fmt.Errorf("too many metrics to disable")
-		}
-		disabledMetricsSlice = splitTrim(disabledMetrics, ",")
-		for _, metric := range disabledMetricsSlice {
-			if metric == "instance_id" || metric == "timestamp" || metric == "disabled_metrics" {
-				return fmt.Errorf("instance_id, timestamp, and disabled_metrics cannot be disabled")
-			}
-		}
-	}
-
-	// initialize telemetry
-	telemetry.Init(id, disabledMetricsSlice)
-
-	// if any metrics were disabled, report which ones (so we know how representative the data is)
-	if len(disabledMetricsSlice) > 0 {
-		telemetry.Set("disabled_metrics", disabledMetricsSlice)
-		log.Printf("[NOTICE] The following telemetry metrics are disabled: %s", disabledMetrics)
-	}
-
-	return nil
-}
-
 // Split string s into all substrings separated by sep and returns a slice of
 // the substrings between those separators.
 //
@@ -620,6 +514,3 @@ var (
 	validate        bool
 	disabledMetrics string
 )
-
-// EnableTelemetry defines whether telemetry is enabled in Run.
-var EnableTelemetry = false
