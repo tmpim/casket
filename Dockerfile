@@ -1,4 +1,4 @@
-FROM golang:1.19-bullseye AS builder
+FROM golang:1.21-bullseye AS builder
 
 WORKDIR /workdir
 
@@ -23,7 +23,11 @@ ENV CGO_ENABLED=0
 # -X: Include the git tag as the version (goreleaser also uses main.version tag)
 RUN go build -ldflags="-s -w -X 'main.version=$(git describe --tags --dirty)'" -o casket .
 
-FROM alpine:3
+FROM builder AS test
+WORKDIR /workdir
+RUN go test -v ./...
+
+FROM alpine:3 AS release
 
 RUN apk --no-cache add tzdata ca-certificates && update-ca-certificates
 

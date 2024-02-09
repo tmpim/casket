@@ -1,6 +1,6 @@
 module github.com/tmpim/casket
 
-go 1.19
+go 1.21
 
 require (
 	github.com/caddyserver/certmagic v0.20.0
@@ -16,7 +16,7 @@ require (
 	github.com/klauspost/cpuid v1.3.1
 	github.com/mholt/archiver/v3 v3.5.0
 	github.com/naoina/toml v0.1.1
-	github.com/quic-go/quic-go v0.33.0
+	github.com/quic-go/quic-go v0.41.0
 	github.com/rakyll/statik v0.1.7
 	github.com/russross/blackfriday v1.6.0
 	github.com/tmpim/casket-plugins v0.0.4-0.20210411234607-8b023eeb664d
@@ -146,6 +146,7 @@ require (
 	go.opentelemetry.io/otel v1.22.0 // indirect
 	go.opentelemetry.io/otel/metric v1.22.0 // indirect
 	go.opentelemetry.io/otel/trace v1.22.0 // indirect
+	go.uber.org/mock v0.3.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.18.0 // indirect
 	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a // indirect
