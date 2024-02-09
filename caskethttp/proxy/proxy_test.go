@@ -39,9 +39,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lucas-clemente/quic-go/http3"
-	"github.com/tmpim/casket/caskethttp/httpserver"
+	"github.com/quic-go/quic-go/http3"
 	"github.com/tmpim/casket/casketfile"
+	"github.com/tmpim/casket/caskethttp/httpserver"
 
 	"golang.org/x/net/websocket"
 )

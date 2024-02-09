@@ -1,16 +1,27 @@
-FROM golang:1.17-bullseye AS builder
+FROM golang:1.19-bullseye AS builder
 
 WORKDIR /workdir
 
+ENV GOPROXY=https://proxy.golang.org,direct
+ENV GOPRIVATE=github.com/tmpim/casket
 COPY go.mod go.sum /workdir
-RUN GOPROXY=https://proxy.golang.org,direct go mod download
+RUN go mod download
 
 COPY . /workdir
-WORKDIR /workdir
+WORKDIR /workdir/casket
 
-RUN cd casket && go mod init casket \
-    && GOPROXY=https://proxy.golang.org,direct GOPRIVATE=github.com/tmpim/casket go get "github.com/tmpim/casket@master" \
-    && go mod tidy && CGO_ENABLED=0 go build -o casket .
+# Required to build with version information - but allow this step to fail (e.g. we're building a PR). Casket will try
+# to get the version from the module (this step) first, and then try to get it from `main.version` (goreleaser and
+# ldflags). See also:
+# - casket/casketmain/run.go#getBuildModule()
+# - https://goreleaser.com/cookbooks/using-main.version/
+RUN go get "github.com/tmpim/casket@master"; exit 0
+
+ENV CGO_ENABLED=0
+# -s: Omit the symbol table and debug information
+# -w: Omit the DWARF symbol table
+# -X: Include the git tag as the version (goreleaser also uses main.version tag)
+RUN go build -ldflags="-s -w -X 'main.version=$(git describe --tags --dirty)'" -o casket .
 
 FROM alpine:3
 

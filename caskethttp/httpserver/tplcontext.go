@@ -33,7 +33,7 @@ import (
 
 	"os"
 
-	"github.com/tmpim/certmagic"
+	"github.com/caddyserver/certmagic"
 	"github.com/russross/blackfriday"
 	"github.com/tmpim/casket/caskettls"
 )

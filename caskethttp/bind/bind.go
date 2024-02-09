@@ -32,7 +32,7 @@ func setupBind(c *casket.Controller) error {
 		if !c.Args(&config.ListenHost) {
 			return c.ArgErr()
 		}
-		config.TLS.Manager.ListenHost = config.ListenHost // necessary for ACME challenges, see issue #309
+		config.TLS.Issuer.ListenHost = config.ListenHost // necessary for ACME challenges, see issue #309
 	}
 	return nil
 }

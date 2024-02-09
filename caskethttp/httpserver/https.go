@@ -15,14 +15,15 @@
 package httpserver
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
 	"strconv"
 
+	"github.com/caddyserver/certmagic"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/caskettls"
-	"github.com/tmpim/certmagic"
 )
 
 func activateHTTPS(cctx casket.Context) error {
@@ -45,7 +46,8 @@ func activateHTTPS(cctx casket.Context) error {
 		if c.TLS.Manager.OnDemand != nil {
 			continue // obtain these certificates on-demand instead
 		}
-		err := c.TLS.Manager.ObtainCert(c.TLS.Hostname, operatorPresent)
+
+		err := c.TLS.Manager.ObtainCertAsync(context.TODO(), c.TLS.Hostname)
 		if err != nil {
 			return err
 		}
@@ -71,7 +73,7 @@ func activateHTTPS(cctx casket.Context) error {
 		certCache, ok := ctx.instance.Storage[caskettls.CertCacheInstStorageKey].(*certmagic.Cache)
 		ctx.instance.StorageMu.RUnlock()
 		if ok && certCache != nil {
-			err = certCache.RenewManagedCertificates()
+			err = certCache.RenewManagedCertificates(context.TODO())
 			if err != nil {
 				return err
 			}
@@ -116,8 +118,10 @@ func enableAutoHTTPS(configs []*SiteConfig, loadCertificates bool) error {
 		}
 		cfg.TLS.Enabled = true
 		cfg.Addr.Scheme = "https"
-		if loadCertificates && certmagic.HostQualifies(cfg.TLS.Hostname) {
-			_, err := cfg.TLS.Manager.CacheManagedCertificate(cfg.TLS.Hostname)
+
+		// TODO: SubjectQualifiesForPublicCert behavior may be slightly different in mainline certmagic
+		if loadCertificates && certmagic.SubjectQualifiesForPublicCert(cfg.TLS.Hostname) {
+			_, err := cfg.TLS.Manager.CacheManagedCertificate(context.TODO(), cfg.TLS.Hostname)
 			if err != nil {
 				return err
 			}

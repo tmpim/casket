@@ -17,6 +17,7 @@ package casketfile
 import (
 	"bufio"
 	"io"
+	"strings"
 	"unicode"
 )
 
@@ -147,4 +148,36 @@ func (l *lexer) next() bool {
 
 		val = append(val, ch)
 	}
+}
+
+// NumLineBreaks counts how many line breaks are in the token text.
+func (t Token) NumLineBreaks() int {
+	lineBreaks := strings.Count(t.Text, "\n")
+	return lineBreaks
+}
+
+// isNextOnNewLine tests whether t2 is on a different line from t1
+func isNextOnNewLine(t1, t2 Token) bool {
+	// If the second token is from a different file,
+	// we can assume it's from a different line
+	if t1.File != t2.File {
+		return true
+	}
+
+	// TODO:
+	// If the second token is from a different import chain,
+	// we can assume it's from a different line
+	// if len(t1.imports) != len(t2.imports) {
+	// 	return true
+	// }
+	// for i, im := range t1.imports {
+	// 	if im != t2.imports[i] {
+	// 		return true
+	// 	}
+	// }
+
+	// If the first token (incl line breaks) ends
+	// on a line earlier than the next token,
+	// then the second token is on a new line
+	return t1.Line+t1.NumLineBreaks() < t2.Line
 }

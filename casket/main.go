@@ -20,14 +20,22 @@
 package main
 
 import (
+	"github.com/tmpim/casket"
 	"log"
 
 	"github.com/tmpim/casket/casket/casketmain"
 )
 
+var (
+	// Populated by ldflags (Docker builds) and goreleaser - https://goreleaser.com/cookbooks/using-main.version/
+	version = "devel"
+)
+
 var run = casketmain.Run // replaced for tests
 
 func main() {
+	casket.AppVersion = version
+
 	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds | log.Llongfile)
 	run()
 }

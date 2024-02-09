@@ -15,17 +15,16 @@
 package caskettls
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
 	"io/ioutil"
 	"time"
 
-	"github.com/go-acme/lego/v4/certcrypto"
-	"github.com/go-acme/lego/v4/challenge/tlsalpn01"
+	"github.com/caddyserver/certmagic"
 	"github.com/klauspost/cpuid"
 	"github.com/tmpim/casket"
-	"github.com/tmpim/certmagic"
 )
 
 // Config describes how TLS should be configured and used.
@@ -84,6 +83,12 @@ type Config struct {
 	// Manager is how certificates are managed
 	Manager *certmagic.Config
 
+	// Issuer is the configuration for the ACME issuer, which will be the first issuer in Manager.Issuers
+	Issuer *certmagic.ACMEIssuer
+
+	// KeyType is the type of key used for self-signed certificates
+	KeyType certmagic.KeyType
+
 	// NoRedirect will disable the automatic HTTP->HTTPS redirect, regardless
 	// of whether the site is managed or not.
 	NoRedirect bool
@@ -111,7 +116,7 @@ type Config struct {
 // NewConfig returns a new Config with a pointer to the instance's
 // certificate cache. You will usually need to set other fields on
 // the returned Config for successful practical use.
-func NewConfig(inst *casket.Instance) (*Config, error) {
+func NewConfig(inst *casket.Instance, template certmagic.ACMEIssuer) (*Config, error) {
 	inst.StorageMu.RLock()
 	certCache, ok := inst.Storage[CertCacheInstStorageKey].(*certmagic.Cache)
 	inst.StorageMu.RUnlock()
@@ -120,18 +125,21 @@ func NewConfig(inst *casket.Instance) (*Config, error) {
 			return nil, err
 		}
 		certCache = certmagic.NewCache(certmagic.CacheOptions{
-			GetConfigForCert: func(cert certmagic.Certificate) (certmagic.Config, error) {
+			GetConfigForCert: func(cert certmagic.Certificate) (*certmagic.Config, error) {
 				inst.StorageMu.RLock()
 				cfgMap, ok := inst.Storage[configMapKey].(map[string]*Config)
 				inst.StorageMu.RUnlock()
 				if ok {
 					for hostname, cfg := range cfgMap {
 						if cfg.Manager != nil && hostname == cert.Names[0] {
-							return *cfg.Manager, nil
+							return certmagic.New(certCache, *cfg.Manager), nil
 						}
 					}
 				}
-				return certmagic.Default, nil
+
+				// Create a default certificate with the same cache as the others (to prevent a "config returned for
+				// certificate is not nil and points to different cache" error)
+				return certmagic.New(certCache, certmagic.Config{}), nil
 			},
 		})
 
@@ -144,9 +152,13 @@ func NewConfig(inst *casket.Instance) (*Config, error) {
 					storageCleaningTicker.Stop()
 					return
 				case <-storageCleaningTicker.C:
-					certmagic.CleanStorage(certmagic.Default.Storage, certmagic.CleanStorageOptions{
+					err := certmagic.CleanStorage(context.TODO(), certmagic.Default.Storage, certmagic.CleanStorageOptions{
 						OCSPStaples: true,
 					})
+
+					if err != nil {
+						fmt.Println("[ERROR] cleaning storage:", err)
+					}
 				}
 			}
 		}()
@@ -161,8 +173,14 @@ func NewConfig(inst *casket.Instance) (*Config, error) {
 		inst.Storage[CertCacheInstStorageKey] = certCache
 		inst.StorageMu.Unlock()
 	}
+
+	magic := certmagic.New(certCache, certmagic.Config{})
+	issuer := certmagic.NewACMEIssuer(magic, template)
+	magic.Issuers = []certmagic.Issuer{issuer}
+
 	return &Config{
-		Manager: certmagic.New(certCache, certmagic.Config{}),
+		Manager: magic,
+		Issuer:  issuer,
 	}, nil
 }
 
@@ -200,13 +218,13 @@ func (c *Config) buildStandardTLSConfig() error {
 	// ensure ALPN includes the ACME TLS-ALPN protocol
 	var alpnFound bool
 	for _, a := range c.ALPN {
-		if a == tlsalpn01.ACMETLS1Protocol {
+		if a == "acme-tls/1" {
 			alpnFound = true
 			break
 		}
 	}
 	if !alpnFound {
-		c.ALPN = append(c.ALPN, tlsalpn01.ACMETLS1Protocol)
+		c.ALPN = append(c.ALPN, "acme-tls/1")
 	}
 
 	config.MinVersion = c.ProtocolMinVersion
@@ -438,11 +456,13 @@ func SetDefaultTLSParams(config *Config) {
 }
 
 // Map of supported key types
-var supportedKeyTypes = map[string]certcrypto.KeyType{
-	"P384":    certcrypto.EC384,
-	"P256":    certcrypto.EC256,
-	"RSA4096": certcrypto.RSA4096,
-	"RSA2048": certcrypto.RSA2048,
+var supportedKeyTypes = map[string]certmagic.KeyType{
+	"ED25519": certmagic.ED25519,
+	"P256":    certmagic.P256,
+	"P384":    certmagic.P384,
+	"RSA2048": certmagic.RSA2048,
+	"RSA4096": certmagic.RSA4096,
+	"RSA8192": certmagic.RSA8192,
 }
 
 // SupportedProtocols is a map of supported protocols.

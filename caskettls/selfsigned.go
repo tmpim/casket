@@ -2,19 +2,17 @@ package caskettls
 
 import (
 	"crypto/ecdsa"
-	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"fmt"
+	"github.com/caddyserver/certmagic"
 	"math/big"
 	"net"
 	"strings"
 	"time"
-
-	"github.com/go-acme/lego/v4/certcrypto"
 )
 
 // newSelfSignedCertificate returns a new self-signed certificate.
@@ -22,20 +20,9 @@ func newSelfSignedCertificate(ssconfig selfSignedConfig) (tls.Certificate, error
 	// start by generating private key
 	var privKey interface{}
 	var err error
-	switch ssconfig.KeyType {
-	case "", certcrypto.EC256:
-		privKey, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	case certcrypto.EC384:
-		privKey, err = ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
-	case certcrypto.RSA2048:
-		privKey, err = rsa.GenerateKey(rand.Reader, 2048)
-	case certcrypto.RSA4096:
-		privKey, err = rsa.GenerateKey(rand.Reader, 4096)
-	case certcrypto.RSA8192:
-		privKey, err = rsa.GenerateKey(rand.Reader, 8192)
-	default:
-		return tls.Certificate{}, fmt.Errorf("cannot generate private key; unknown key type %v", ssconfig.KeyType)
-	}
+
+	keyGenerator := certmagic.StandardKeyGenerator{KeyType: ssconfig.KeyType}
+	privKey, err = keyGenerator.GenerateKey()
 	if err != nil {
 		return tls.Certificate{}, fmt.Errorf("failed to generate private key: %v", err)
 	}
@@ -98,6 +85,6 @@ func newSelfSignedCertificate(ssconfig selfSignedConfig) (tls.Certificate, error
 // selfSignedConfig configures a self-signed certificate.
 type selfSignedConfig struct {
 	SAN     []string
-	KeyType certcrypto.KeyType
+	KeyType certmagic.KeyType
 	Expire  time.Time
 }

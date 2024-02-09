@@ -31,7 +31,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lucas-clemente/quic-go/http3"
+	"github.com/quic-go/quic-go/http3"
 	"github.com/tmpim/casket"
 	"github.com/tmpim/casket/caskethttp/staticfiles"
 	"github.com/tmpim/casket/caskettls"
@@ -104,8 +104,14 @@ func NewServer(addr string, group []*SiteConfig) (*Server, error) {
 	if s.Server.TLSConfig != nil {
 		// enable QUIC if desired (requires HTTP/2)
 		if HTTP2 && QUIC {
-			s.quicServer = &http3.Server{Server: s.Server}
-			s.Server.Handler = s.wrapWithSvcHeaders(s.Server.Handler)
+			// As of https://github.com/quic-go/quic-go/pull/3397 this longer directly accepts a `Server` field
+			// TODO: Verify this correct
+			s.quicServer = &http3.Server{
+				Addr:           s.Server.Addr,
+				Handler:        s.Server.Handler,
+				TLSConfig:      s.Server.TLSConfig,
+				MaxHeaderBytes: s.Server.MaxHeaderBytes,
+			}
 		}
 
 		// wrap the HTTP handler with a handler that does MITM detection
@@ -414,7 +420,7 @@ func (s *Server) serveHTTP(w http.ResponseWriter, r *http.Request) (int, error) 
 		// check for ACME challenge even if vhost is nil;
 		// could be a new host coming online soon - choose any
 		// vhost's cert manager configuration, I guess
-		if len(s.sites) > 0 && s.sites[0].TLS.Manager.HandleHTTPChallenge(w, r) {
+		if len(s.sites) > 0 && s.sites[0].TLS.Issuer.HandleHTTPChallenge(w, r) {
 			return 0, nil
 		}
 
@@ -431,7 +437,7 @@ func (s *Server) serveHTTP(w http.ResponseWriter, r *http.Request) (int, error) 
 
 	// we still check for ACME challenge if the vhost exists,
 	// because the HTTP challenge might be disabled by its config
-	if vhost.TLS.Manager.HandleHTTPChallenge(w, r) {
+	if vhost.TLS.Issuer.HandleHTTPChallenge(w, r) {
 		return 0, nil
 	}
 

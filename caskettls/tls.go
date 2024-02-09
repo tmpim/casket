@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// package caskettls facilitates the management of TLS assets and integrates
+// Package caskettls facilitates the management of TLS assets and integrates
 // Let's Encrypt functionality into Casket with first-class support for
 // creating and renewing certificates automatically. It also implements
 // the tls directive. It's mostly powered by the CertMagic package.
@@ -29,9 +29,9 @@
 package caskettls
 
 import (
-	"github.com/go-acme/lego/v4/challenge"
+	"context"
+	"github.com/caddyserver/certmagic"
 	"github.com/tmpim/casket"
-	"github.com/tmpim/certmagic"
 )
 
 // ConfigHolder is any type that has a Config; it presumably is
@@ -71,13 +71,15 @@ func QualifiesForManagedTLS(c ConfigHolder) bool {
 
 		// we get can't certs for some kinds of hostnames, but
 		// on-demand TLS allows empty hostnames at startup
-		(certmagic.HostQualifies(c.Host()) || onDemand)
+		(certmagic.SubjectQualifiesForPublicCert(c.Host()) || onDemand)
 }
 
-// Revoke revokes the certificate fro host via the ACME protocol.
+// Revoke revokes the certificate for host via the ACME protocol.
 // It assumes the certificate was obtained from certmagic.CA.
 func Revoke(domainName string) error {
-	return certmagic.NewDefault().RevokeCert(domainName, true)
+	// TODO: Bubble down certificate revocation reasons per RFC 5280. Is this function only ever called by human
+	//       interaction?
+	return certmagic.NewDefault().RevokeCert(context.TODO(), domainName, 0, true)
 }
 
 // KnownACMECAs is a list of ACME directory endpoints of
@@ -87,18 +89,9 @@ var KnownACMECAs = []string{
 	"https://acme-v02.api.letsencrypt.org/directory",
 }
 
-// ChallengeProvider defines an own type that should be used in Casket plugins
-// over challenge.Provider. Using challenge.Provider causes version mismatches
-// with vendored dependencies (see https://github.com/mattfarina/golang-broken-vendor)
-//
-// challenge.Provider is an interface that allows the implementation of custom
-// challenge providers. For more details, see:
-// https://godoc.org/github.com/go-acme/lego/acme#ChallengeProvider
-type ChallengeProvider challenge.Provider
-
 // DNSProviderConstructor is a function that takes credentials and
 // returns a type that can solve the ACME DNS challenges.
-type DNSProviderConstructor func(credentials ...string) (ChallengeProvider, error)
+type DNSProviderConstructor func(c *casket.Controller) (certmagic.ACMEDNSProvider, error)
 
 // dnsProviders is the list of DNS providers that have been plugged in.
 var dnsProviders = make(map[string]DNSProviderConstructor)

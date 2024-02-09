@@ -82,6 +82,25 @@ func (d *Dispenser) NextArg() bool {
 	return false
 }
 
+// nextOnSameLine advances the cursor if the next
+// token is on the same line of the same file.
+func (d *Dispenser) nextOnSameLine() bool {
+	if d.cursor < 0 {
+		d.cursor++
+		return true
+	}
+	if d.cursor >= len(d.tokens)-1 {
+		return false
+	}
+	curr := d.tokens[d.cursor]
+	next := d.tokens[d.cursor+1]
+	if !isNextOnNewLine(curr, next) {
+		d.cursor++
+		return true
+	}
+	return false
+}
+
 // NextLine loads the next token only if it is not on the same
 // line as the current token, and returns true if a token was
 // loaded; false otherwise. If false, there is not another token
@@ -91,47 +110,80 @@ func (d *Dispenser) NextLine() bool {
 		d.cursor++
 		return true
 	}
-	if d.cursor >= len(d.tokens) {
+	if d.cursor >= len(d.tokens)-1 {
 		return false
 	}
-	if d.cursor < len(d.tokens)-1 &&
-		(d.tokens[d.cursor].File != d.tokens[d.cursor+1].File ||
-			d.tokens[d.cursor].Line+d.numLineBreaks(d.cursor) < d.tokens[d.cursor+1].Line) {
+	curr := d.tokens[d.cursor]
+	next := d.tokens[d.cursor+1]
+	if isNextOnNewLine(curr, next) {
 		d.cursor++
 		return true
 	}
 	return false
 }
 
-// NextBlock can be used as the condition of a for loop
-// to load the next token as long as it opens a block or
-// is already in a block. It returns true if a token was
-// loaded, or false when the block's closing curly brace
-// was loaded and thus the block ended. Nested blocks are
-// not supported.
+// NextBlock is equivalent to NextBlockNesting(0).
 func (d *Dispenser) NextBlock() bool {
-	if d.nesting > 0 {
-		d.Next()
-		if d.Val() == "}" {
-			d.nesting--
-			return false
+	return d.NextBlockNesting(0)
+}
+
+// NextBlockNesting can be used as the condition of a for loop
+// to load the next token as long as it opens a block or
+// is already in a block nested more than initialNestingLevel.
+// In other words, a loop over NextBlockNesting() will iterate
+// all tokens in the block assuming the next token is an
+// open curly brace, until the matching closing brace.
+// The open and closing brace tokens for the outer-most
+// block will be consumed internally and omitted from
+// the iteration.
+//
+// Proper use of this method looks like this:
+//
+//	for nesting := d.Nesting(); d.NextBlockNesting(nesting); {
+//	}
+//
+// However, in simple cases where it is known that the
+// Dispenser is new and has not already traversed state
+// by a loop over NextBlockNesting(), this will do:
+//
+//	for d.NextBlockNesting() {
+//	}
+//
+// As with other token parsing logic, a loop over
+// NextBlockNesting() should be contained within a loop over
+// Next(), as it is usually prudent to skip the initial
+// token.
+func (d *Dispenser) NextBlockNesting(initialNestingLevel int) bool {
+	if d.nesting > initialNestingLevel {
+		if !d.Next() {
+			return false // should be EOF error
 		}
-		return true
+		if d.Val() == "}" && !d.nextOnSameLine() {
+			d.nesting--
+		} else if d.Val() == "{" && !d.nextOnSameLine() {
+			d.nesting++
+		}
+		return d.nesting > initialNestingLevel
 	}
-	if !d.NextArg() { // block must open on same line
+	if !d.nextOnSameLine() { // block must open on same line
 		return false
 	}
 	if d.Val() != "{" {
 		d.cursor-- // roll back if not opening brace
 		return false
 	}
-	d.Next()
+	d.Next() // consume open curly brace
 	if d.Val() == "}" {
-		// Open and then closed right away
-		return false
+		return false // open and then closed right away
 	}
 	d.nesting++
 	return true
+}
+
+// Nesting returns the current nesting level. Necessary
+// if using NextBlock()
+func (d *Dispenser) Nesting() int {
+	return d.nesting
 }
 
 // Val gets the text of the current token. If there is no token
@@ -255,6 +307,24 @@ func (d *Dispenser) isNewLine() bool {
 	if d.cursor > len(d.tokens)-1 {
 		return false
 	}
-	return d.tokens[d.cursor-1].File != d.tokens[d.cursor].File ||
-		d.tokens[d.cursor-1].Line+d.numLineBreaks(d.cursor-1) < d.tokens[d.cursor].Line
+
+	prev := d.tokens[d.cursor-1]
+	curr := d.tokens[d.cursor]
+	return isNextOnNewLine(prev, curr)
+}
+
+// isNextOnNewLine determines whether the current token is on a different
+// line (higher line number) than the next token. It handles imported
+// tokens correctly. If there isn't a next token, it returns true.
+func (d *Dispenser) isNextOnNewLine() bool {
+	if d.cursor < 0 {
+		return false
+	}
+	if d.cursor >= len(d.tokens)-1 {
+		return true
+	}
+
+	curr := d.tokens[d.cursor]
+	next := d.tokens[d.cursor+1]
+	return isNextOnNewLine(curr, next)
 }
