@@ -28,6 +28,10 @@ builds:
 # Set dist directory to build/ since we have files in dist/
 dist: build
 
+before:
+  hooks:
+    - go mod tidy
+
 archives:
   - id: casket
     builds:

@@ -19,12 +19,6 @@ jobs:
         with:
           fetch-depth: 0 # Used to get tags to populate the version number
 
-      - name: Go module init
-        run: |
-          cd casket
-          go mod init casket
-          cd ..
-
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
         with:
