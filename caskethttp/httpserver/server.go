@@ -239,7 +239,7 @@ func makeHTTPServerWithTimeouts(addr string, group []*SiteConfig) *http.Server {
 
 func (s *Server) wrapWithSvcHeaders(previousHandler http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := s.quicServer.SetQuicHeaders(w.Header()); err != nil {
+		if err := s.quicServer.SetQUICHeaders(w.Header()); err != nil {
 			log.Println("[Error] failed to set proper headers for QUIC: ", err)
 		}
 		previousHandler.ServeHTTP(w, r)
