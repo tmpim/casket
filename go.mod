@@ -19,7 +19,7 @@ require (
 	github.com/quic-go/quic-go v0.43.0
 	github.com/rakyll/statik v0.1.7
 	github.com/russross/blackfriday v1.6.0
-	github.com/tmpim/casket-plugins v0.0.6-0.20240924030634-866ca3e226f4
+	github.com/tmpim/casket-plugins v0.0.7
 	github.com/tmpim/dnsproviders v0.5.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.24.0
