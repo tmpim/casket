@@ -329,7 +329,7 @@ func directoryListing(files []os.FileInfo, canGoUp bool, urlPath string, config 
 		fileInfos = append(fileInfos, FileInfo{
 			IsDir:     isDir,
 			IsSymlink: fileIsSymlink,
-			Name:      name,
+			Name:      f.Name(),
 			Size:      size,
 			URL:       u.String(),
 			ModTime:   f.ModTime().UTC(),
