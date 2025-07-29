@@ -313,13 +313,24 @@ func directoryListing(files []os.FileInfo, canGoUp bool, urlPath string, config 
 			continue
 		}
 
+		fileIsSymlink := isSymlink(f)
+		size := f.Size()
+		if fileIsSymlink {
+			info, err := os.Stat(name)
+			if err != nil {
+				log.Printf("[ERROR] Could not stat symlink %s: %v", name, err)
+			} else {
+				size = info.Size()
+			}
+		}
+
 		u := url.URL{Path: "./" + name} // prepend with "./" to fix paths with ':' in the name
 
 		fileInfos = append(fileInfos, FileInfo{
 			IsDir:     isDir,
-			IsSymlink: isSymlink(f),
-			Name:      f.Name(),
-			Size:      f.Size(),
+			IsSymlink: fileIsSymlink,
+			Name:      name,
+			Size:      size,
 			URL:       u.String(),
 			ModTime:   f.ModTime().UTC(),
 			Mode:      f.Mode(),
