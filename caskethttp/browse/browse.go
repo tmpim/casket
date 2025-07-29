@@ -316,12 +316,20 @@ func directoryListing(files []os.FileInfo, canGoUp bool, urlPath string, config 
 		fileIsSymlink := isSymlink(f)
 		size := f.Size()
 		if fileIsSymlink {
-			info, err := os.Stat(name)
-			if err != nil {
-				log.Printf("[ERROR] Could not stat symlink %s: %v", name, err)
-			} else {
-				size = info.Size()
+			// Open the jailed symlink to determine its real size
+			filePath := path.Join(urlPath, f.Name())
+			file, err := config.Fs.Root.Open(filePath)
+			if err == nil {
+				stat, statErr := file.Stat()
+				file.Close()
+				if statErr == nil {
+					size = stat.Size()
+				}
 			}
+			// An error most likely means the symlink target doesn't exist,
+			// which isn't entirely unusual and shouldn't fail the listing.
+			// In this case, just use the size of the symlink itself, which
+			// was already set above.
 		}
 
 		u := url.URL{Path: "./" + name} // prepend with "./" to fix paths with ':' in the name
