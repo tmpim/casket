@@ -27,3 +27,5 @@ og_static/
 .vscode/
 
 *.bat
+
+Dockerfile.local

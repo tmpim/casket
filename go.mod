@@ -19,7 +19,7 @@ require (
 	github.com/quic-go/quic-go v0.43.0
 	github.com/rakyll/statik v0.1.7
 	github.com/russross/blackfriday v1.6.0
-	github.com/tmpim/casket-plugins v0.0.8
+	github.com/tmpim/casket-plugins v0.0.9
 	github.com/tmpim/dnsproviders v0.5.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.24.0
@@ -29,7 +29,6 @@ require (
 )
 
 require (
-	cloud.google.com/go v0.112.1 // indirect
 	cloud.google.com/go/auth v0.3.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.2 // indirect
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect
