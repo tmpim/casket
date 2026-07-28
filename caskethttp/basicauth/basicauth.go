@@ -30,8 +30,10 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/jimstudt/http-authentication/basic"
 	"github.com/tmpim/casket/caskethttp/httpserver"
@@ -46,7 +48,20 @@ type BasicAuth struct {
 	Next     httpserver.Handler
 	SiteRoot string
 	Rules    []Rule
+	Cookie   CookieConfig
 }
+
+type CookieConfig struct {
+	Enabled   bool
+	TTL       time.Duration
+	Refresh   time.Duration
+	NoRefresh bool
+	Name      string
+}
+
+const defaultCookieTTL = time.Hour * 24
+const defaultCookieName = "casket_basicauth"
+const tsCookieSuffix = "_ts"
 
 // ServeHTTP implements the httpserver.Handler interface.
 func (a BasicAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
@@ -60,6 +75,20 @@ func (a BasicAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error
 	if r.Method == http.MethodOptions {
 		// Pass-through when no paths match
 		return a.Next.ServeHTTP(w, r)
+	}
+
+	// if cookies are enabled for this site, and there's no auth header, pass through the cookie. note this would lead
+	// to a possible desync if the user somehow changes the auth header while they have a cookie stored
+	var cookie *http.Cookie
+	cookieEnabled := a.Cookie.Enabled
+	if cookieEnabled {
+		if c, err := r.Cookie(a.Cookie.Name); err == nil && c.Value != "" {
+			cookie = c
+
+			if r.Header.Get("Authorization") == "" {
+				r.Header.Set("Authorization", c.Value)
+			}
+		}
 	}
 
 ruleLoop:
@@ -100,10 +129,21 @@ ruleLoop:
 			// Provide username to be used in log by replacer
 			repl := httpserver.NewReplacer(r, nil, "-")
 			repl.Set("user", username)
+
+			// store the auth header in a cookie if we need to
+			if cookieEnabled {
+				if a.shouldUpdateCookie(r, cookie) {
+					a.setCookies(w, r, r.Header.Get("Authorization"))
+				}
+			}
 		}
 	}
 
 	if protected && !isAuthenticated {
+		if cookieEnabled {
+			a.clearCookies(w, r)
+		}
+
 		// browsers show a message that says something like:
 		// "The website says: <realm>"
 		// which is kinda dumb, but whatever.
@@ -214,4 +254,92 @@ func PlainMatcher(passw string) PasswordMatcher {
 		pwSum := pwHash.Sum(nil)
 		return subtle.ConstantTimeCompare([]byte(pwSum), []byte(passwSum)) == 1
 	}
+}
+
+func (a BasicAuth) shouldUpdateCookie(r *http.Request, cookie *http.Cookie) bool {
+	if cookie == nil {
+		return true // we don't have a cookie, set a new one
+	}
+
+	if a.Cookie.NoRefresh || a.Cookie.Refresh <= 0 {
+		return false // no refresh, leave it as-is to expire according to ttl
+	}
+
+	tsCookie, err := r.Cookie(a.Cookie.Name + tsCookieSuffix)
+	if err != nil {
+		return true // timestamp cookie missing, re-issue anyway i guess?
+	}
+
+	issuedAtUnix, err := strconv.ParseInt(tsCookie.Value, 10, 64)
+	if err != nil {
+		return true // whatever
+	}
+
+	issuedAt := time.Unix(issuedAtUnix, 0)
+
+	// refresh if we're past time
+	return time.Since(issuedAt) > a.Cookie.Refresh
+}
+
+func (a BasicAuth) setCookies(w http.ResponseWriter, r *http.Request, authHeader string) {
+	now := time.Now()
+
+	authCookie := &http.Cookie{
+		Name:     a.Cookie.Name,
+		Value:    authHeader,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	tsCookie := &http.Cookie{
+		Name:     a.Cookie.Name + tsCookieSuffix,
+		Value:    fmt.Sprintf("%d", now.Unix()),
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	if a.Cookie.TTL > 0 {
+		exp := now.Add(a.Cookie.TTL)
+		maxAge := int(a.Cookie.TTL.Seconds())
+
+		authCookie.Expires = exp
+		authCookie.MaxAge = maxAge
+
+		tsCookie.Expires = exp
+		tsCookie.MaxAge = maxAge
+	}
+
+	http.SetCookie(w, authCookie)
+	http.SetCookie(w, tsCookie)
+}
+
+func (a BasicAuth) clearCookies(w http.ResponseWriter, r *http.Request) {
+	deadAuth := &http.Cookie{
+		Name:     a.Cookie.Name,
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	deadTS := &http.Cookie{
+		Name:     a.Cookie.Name + tsCookieSuffix,
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	http.SetCookie(w, deadAuth)
+	http.SetCookie(w, deadTS)
 }
