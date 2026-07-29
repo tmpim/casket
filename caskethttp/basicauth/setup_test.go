@@ -126,10 +126,35 @@ md5:$apr1$l42y8rex$pOA2VJ0x/0TwaFeAF9nX61`
 		{`basicauth sha1 htpasswd=` + htfh.Name(), false, htpasswdPasswd, []Rule{
 			{Username: "sha1"},
 		}},
+
+		{`basicauth user pwd {
+		  cookie
+		}`, false, "pwd", []Rule{
+			{Username: "user"},
+		}},
+
+		{`basicauth user pwd {
+		  cookie {
+			  ttl 12h
+				refresh 8h
+				name whatever
+			}
+		}`, false, "pwd", []Rule{
+			{Username: "user"},
+		}},
+
+		{`basicauth user pwd {
+		  cookie {
+			  ttl 12h
+				refresh 0
+			}
+		}`, false, "pwd", []Rule{
+			{Username: "user"},
+		}},
 	}
 
 	for i, test := range tests {
-		actual, err := basicAuthParse(casket.NewTestController("http", test.input))
+		actual, _, err := basicAuthParse(casket.NewTestController("http", test.input))
 
 		if err == nil && test.shouldErr {
 			t.Errorf("Test %d didn't error, but it should have", i)
