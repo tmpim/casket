@@ -127,6 +127,10 @@ export default defineConfig({
       },
     ],
 
+    outline: {
+      level: [2, 3]
+    },
+
     editLink: {
       pattern: "https://github.com/tmpim/casket/edit/master/docs/src/:path",
       text: "Edit this page on GitHub",
