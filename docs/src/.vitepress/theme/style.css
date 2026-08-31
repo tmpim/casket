@@ -191,3 +191,7 @@
 .vp-doc .table-of-contents li + li, .vp-doc .tight-list li + li {
   margin-top: 4px;
 }
+
+.tight-list li > p:only-child {
+  margin: 0;
+}
