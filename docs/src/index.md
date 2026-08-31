@@ -26,24 +26,38 @@ documented, but will be in due course.
 <div class="tight-list">
 
 - ❓ Provide multi-platform Docker images at `ghcr.io/tmpim/casket`
+
 - Allow use of multiple headers for loadbalancing policy in the [`proxy`](/proxy) directive
   ([#1](https://github.com/tmpim/casket/pull/1))
+
 - Add [`tryfiles`](/tryfiles) directive, similar to Caddy v2 ([#15](https://github.com/tmpim/casket/pull/15))
+
 - Add `exclude` option to the [`basicauth`](/basicauth) directive
-  ([52c171f](https://github.com/tmpim/casket/commit/52c171f6c6d5941e0fd3e75aaad202a68f1305bc))
+  ([52c171f](https://github.com/tmpim/casket/commit/52c171f))
+
 - Add `cookie` option to the [`basicauth`](/basicauth) directive
   ([#33](https://github.com/tmpim/casket/pull/33))
+
 - Add `servearchive` option to the [`browse`](/browse) directive to download folders as archives
   ([17c7b06](https://github.com/tmpim/casket/commit/17c7b06))
+
 - Default [`browse`](/browse) template is laid out better on mobile ([#24](https://github.com/tmpim/casket/pull/24))
+
 - ❓ Automatic MIME type detection based on extension to the `mime` directive
   ([67a1cb7..69ea3e2](https://github.com/tmpim/casket/compare/67a1cb7..69ea3e2))
+
 - ❓ Redirect HTTP -> HTTPS even for self-managed TLS configurations (`self_signed`, own certificates, etc.)
   ([#26](https://github.com/tmpim/casket/pull/26))
+
 - Environment variables everywhere placeholders are supported
   ([1bedd5e](https://github.com/tmpim/casket/commit/1bedd5e))
-- GeoIP databases loaded by [`realip`](/realip) are reloaded automatically when the file changes 
-  ([c672019](https://github.com/tmpim/casket-plugins/compare/319da03..eef6146))
+
+- GeoIP databases loaded by [`realip`](/realip) and [`ipfilter`](/ipfilter) are reloaded automatically when the file 
+  changes ([c672019](https://github.com/tmpim/casket-plugins/compare/319da03..eef6146))
+
+- Add `prefix_file` option to the [`ipfilter`](/ipfilter) directive to use a more efficient single flat file for IP 
+  blocklists, with support for auto-reloading ([5612480](https://github.com/tmpim/casket/commit/5612480))
+
 - Telemetry disabled and removed from the codebase
 
 </div>
@@ -55,14 +69,19 @@ The following fixes have been made in Casket since the last Caddy v1 build:
 <div class="tight-list">
 
 - Updated to [Go 1.27](https://github.com/tmpim/casket/commit/0d974e3)
+
 - Updated [certmagic](https://github.com/caddyserver/certmagic) to keep up to date with LetsEncrypt changes
   ([#19](https://github.com/tmpim/casket/pull/19))
+
   - Some breaking changes were made to the `tls.dns` directives to support the new certmagic version. Refer to the
     documentation for your provider for more information, or the [migration guide](/v1.4.0-dns-migration-guide).
+
 - Support [scoped API tokens](https://developers.cloudflare.com/cloudflare-one/api-terraform/scoped-api-tokens/) in
   [`tls.cloudflare.dns`](/tls.dns.cloudflare)
   ([dnsproviders](https://github.com/tmpim/dnsproviders/compare/b6e727b..66e13a8))
+
 - ❓ Try all extensions in `ext` directive ([#4](https://github.com/tmpim/casket/pull/4/commits/9e4238c))
+
 - ❓ Don't try to obtain certificates for reserved TLDs such as `.example`, `.invalid`, `.localhost`, `.test`, `.local`
   and `.app` ([#12](https://github.com/tmpim/casket/issues/12))
 
@@ -102,4 +121,5 @@ following if you are considering switching from Caddy v1 to Casket:
 - The majority of Caddy v1's plugin ecosystem has been abandoned, with only a handful of core plugins being merged 
   upstream in [casket](https://github.com/tmpim/casket/tree/HEAD/caskethttp) (PRs definitely welcome there too!).
 
-([Past discussion](https://github.com/tmpim/casket/issues/25#issuecomment-1840117408), many of which have now been addressed)
+([Past discussion](https://github.com/tmpim/casket/issues/25#issuecomment-1840117408), many of which have now been 
+addressed)

@@ -11,6 +11,7 @@ import (
 
 	"github.com/oschwald/maxminddb-golang"
 	"github.com/tmpim/casket"
+	"github.com/tmpim/casket/caskethttp/geoip"
 	"github.com/tmpim/casket/caskethttp/httpserver"
 )
 
@@ -126,8 +127,8 @@ func TestCountryCodes(t *testing.T) {
 			http.StatusOK, // Allowed
 		},
 	}
-	// open the db
-	db, err := maxminddb.Open(DataBase)
+	// open the db with auto-reload support from geoip directive
+	db, err := geoip.NewDBReloader(DataBase)
 	if err != nil {
 		t.Fatalf("Error opening the database: %v", err)
 	}

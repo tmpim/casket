@@ -12,8 +12,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/oschwald/maxminddb-golang"
 	"github.com/tmpim/casket"
+	"github.com/tmpim/casket/caskethttp/geoip"
 	"github.com/tmpim/casket/caskethttp/httpserver"
 )
 
@@ -39,7 +39,7 @@ type IPPath struct {
 // IPFConfig holds the configuration for the ipfilter middleware.
 type IPFConfig struct {
 	Paths     []IPPath
-	DBHandler *maxminddb.Reader // Database's handler if it gets opened.
+	DBHandler *geoip.DBReloader // Database's handler if it gets opened.
 }
 
 // OnlyCountry is used to fetch only the country's code from 'mmdb'.
@@ -427,12 +427,19 @@ func ipfilterParseSingle(config *IPFConfig, c *casket.Controller) (IPPath, error
 
 			database := c.Val()
 
-			// Open the database.
+			// Open the database with auto-reload support from geoip directive.
 			var err error
-			config.DBHandler, err = maxminddb.Open(database)
+			config.DBHandler, err = geoip.NewDBReloader(database)
 			if err != nil {
 				return cPath, c.Errf("ipfilter: Can't open database %s: %v", database, err)
 			}
+
+			// Register geoip db cleanup on shutdown and restart.
+			cleanup := func() error {
+				return config.DBHandler.Close()
+			}
+			c.OnShutdown(cleanup)
+			c.OnRestart(cleanup)
 		case "blockpage":
 			if !c.NextArg() {
 				return cPath, c.ArgErr()
