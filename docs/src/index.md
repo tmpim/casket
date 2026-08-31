@@ -56,7 +56,8 @@ documented, but will be in due course.
   changes ([c672019](https://github.com/tmpim/casket-plugins/compare/319da03..eef6146))
 
 - Add `prefix_file` option to the [`ipfilter`](/ipfilter) directive to use a more efficient single flat file for IP 
-  blocklists, with support for auto-reloading ([5612480](https://github.com/tmpim/casket/commit/5612480))
+  blocklists, with support for auto-reloading ([5612480](https://github.com/tmpim/casket/commit/5612480), 
+  [6cf24d6](https://github.com/tmpim/casket/commit/6cf24d6))
 
 - Telemetry disabled and removed from the codebase
 
