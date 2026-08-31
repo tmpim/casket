@@ -167,7 +167,7 @@ func TestMultipleOverlappingRules(t *testing.T) {
 }
 
 func contentHandler(w http.ResponseWriter, r *http.Request) (int, error) {
-	fmt.Fprintf(w, r.URL.String())
+	fmt.Fprintf(w, "%s", r.URL.String())
 	return http.StatusOK, nil
 }
 

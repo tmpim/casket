@@ -134,7 +134,7 @@ func internalTestHandlerFunc(w http.ResponseWriter, r *http.Request) (int, error
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, r.URL.String())
+	fmt.Fprintf(w, "%s", r.URL.String())
 
 	return 0, nil
 }

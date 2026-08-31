@@ -1,10 +1,10 @@
-FROM golang:1.22-bullseye AS builder
+FROM golang:1.27.0-trixie AS builder
 
 WORKDIR /workdir
 
 ENV GOPROXY=https://proxy.golang.org,direct
 ENV GOPRIVATE=github.com/tmpim/casket
-COPY go.mod go.sum /workdir
+COPY go.mod go.sum /workdir/
 RUN go mod download
 
 COPY . /workdir
@@ -24,10 +24,13 @@ ENV CGO_ENABLED=0
 RUN go build -ldflags="-s -w -X 'main.version=$(git describe --tags --dirty)'" -o casket .
 
 FROM builder AS test
-WORKDIR /workdir
-RUN go test -v ./...
 
-FROM alpine:3 AS release
+RUN go install github.com/mfridman/tparse@latest
+
+WORKDIR /workdir
+RUN go test -cover -json ./... | tparse -all
+
+FROM alpine:3.24.1 AS release
 
 RUN apk --no-cache add tzdata ca-certificates && update-ca-certificates
 

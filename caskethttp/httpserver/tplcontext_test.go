@@ -868,7 +868,7 @@ func TestFiles(t *testing.T) {
 				t.Errorf(testPrefix+"Could not verify error content, got: '%s'", err.Error())
 			}
 		} else if test.shouldErr {
-			t.Errorf(testPrefix + "Expected error but had none")
+			t.Errorf("%sExpected error but had none", testPrefix)
 		} else {
 			numFiles := len(test.fileNames)
 			// reflect.DeepEqual does not consider two empty slices to be equal

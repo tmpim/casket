@@ -1,0 +1,22 @@
+<body>
+Hello World!
+<div id="text"></div>
+<div id="text2"></div>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script>
+	$.get("http://localhost:9999/foo",function(dat) {
+  		$("#text").text(dat);
+	})
+	.fail(function(a,err) {
+    	$("#text").text(err);
+  	})
+	
+	$.get("http://localhost:9999/bar",function(dat) {
+  		$("#text2").text(dat);
+	})
+	.fail(function(a,err) {
+    	$("#text2").text("Success!");
+  	})
+	
+</script>
+</body>

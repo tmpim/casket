@@ -159,7 +159,7 @@ func (h ErrorHandler) recovery(w http.ResponseWriter, r *http.Request) {
 		httpserver.WriteTextResponse(w, http.StatusInternalServerError, fmt.Sprintf("%s\n\n%s", panicMsg, stack))
 	} else {
 		// Currently we don't use the function name, since file:line is more conventional
-		h.Log.Printf(panicMsg)
+		h.Log.Printf("%s", panicMsg)
 		h.errorPage(w, r, http.StatusInternalServerError)
 	}
 }

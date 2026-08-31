@@ -1,0 +1,13 @@
+#run with casketdev -after="log" -source="." cors -conf=test/Casketfile
+# from casket directory
+
+http://localhost:9999 {
+	root ./test/target
+	cors /foo
+}
+
+#navigate browser to localhost:9998
+#sould see "Success! twice"
+http://localhost:9998 {
+	root ./test/origin
+}
