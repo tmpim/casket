@@ -25,13 +25,15 @@ type IPFilter struct {
 
 // IPPath holds the configuration of a single ipfilter block.
 type IPPath struct {
-	PathScopes   []string
-	BlockPage    string
-	CountryCodes []string
-	PrefixDir    string
-	Nets         []*net.IPNet
-	IsBlock      bool
-	Strict       bool
+	PathScopes         []string
+	BlockPage          string
+	CountryCodes       []string
+	PrefixDir          string
+	PrefixFile         string
+	PrefixFileReloader *PrefixFileReloader
+	Nets               []*net.IPNet
+	IsBlock            bool
+	Strict             bool
 }
 
 // IPFConfig holds the configuration for the ipfilter middleware.
@@ -91,6 +93,45 @@ func Setup(c *casket.Controller) error {
 	ifconfig, err := ipfilterParse(c)
 	if err != nil {
 		return err
+	}
+
+	// validate configured prefix files exist before setup
+	for i := range ifconfig.Paths {
+		prefixFile := ifconfig.Paths[i].PrefixFile
+		if prefixFile == "" {
+			continue
+		}
+
+		// Get absolute path to use as cache key
+		absPath, err := filepath.Abs(prefixFile)
+		if err != nil {
+			return c.Errf("ipfilter: Can't resolve prefix file %s: %v", prefixFile, err)
+		}
+
+		prefixFileReloaderCacheMu.Lock()
+		reloader, exists := prefixFileReloaderCache[absPath]
+		if !exists {
+			reloader, err = newPrefixFileReloader(absPath, defaultPrefixFileDebounce, nil)
+			if err != nil {
+				prefixFileReloaderCacheMu.Unlock()
+				return c.Errf("ipfilter: Can't open prefix file %s: %v", prefixFile, err)
+			}
+			prefixFileReloaderCache[absPath] = reloader
+
+			// Only register cleanup for newly created reloaders.
+			// Clean up on shutdown and remove from cache.
+			cleanup := func() error {
+				prefixFileReloaderCacheMu.Lock()
+				delete(prefixFileReloaderCache, absPath)
+				prefixFileReloaderCacheMu.Unlock()
+				return reloader.Close()
+			}
+			c.OnShutdown(cleanup)
+			c.OnRestart(cleanup)
+		}
+		prefixFileReloaderCacheMu.Unlock()
+
+		ifconfig.Paths[i].PrefixFileReloader = reloader
 	}
 
 	// Create new middleware
@@ -173,6 +214,10 @@ func (ipf IPFilter) ShouldAllow(path IPPath, r *http.Request) (bool, string, err
 						break
 					}
 				}
+			}
+
+			if path.PrefixFileReloader != nil && path.PrefixFileReloader.Contains(clientIP) {
+				rs.inRange = true
 			}
 
 			if ipf.PrefixDirBlocked(clientIP, path) {
@@ -386,7 +431,7 @@ func ipfilterParseSingle(config *IPFConfig, c *casket.Controller) (IPPath, error
 			var err error
 			config.DBHandler, err = maxminddb.Open(database)
 			if err != nil {
-				return cPath, c.Err("ipfilter: Can't open database: " + database)
+				return cPath, c.Errf("ipfilter: Can't open database %s: %v", database, err)
 			}
 		case "blockpage":
 			if !c.NextArg() {
@@ -396,7 +441,7 @@ func ipfilterParseSingle(config *IPFConfig, c *casket.Controller) (IPPath, error
 			// check if blockpage exists.
 			blockpage := c.Val()
 			if _, err := os.Stat(blockpage); os.IsNotExist(err) {
-				return cPath, c.Err("ipfilter: No such file: " + blockpage)
+				return cPath, c.Errf("ipfilter: No such file: %s", blockpage)
 			}
 			cPath.BlockPage = blockpage
 		case "country":
@@ -414,7 +459,7 @@ func ipfilterParseSingle(config *IPFConfig, c *casket.Controller) (IPPath, error
 			for _, ip := range ips {
 				ipRange, err := parseIP(ip)
 				if err != nil {
-					return cPath, c.Err("ipfilter: " + err.Error())
+					return cPath, c.Errf("ipfilter: %v", err)
 				}
 
 				cPath.Nets = append(cPath.Nets, ipRange...)
@@ -434,6 +479,18 @@ func ipfilterParseSingle(config *IPFConfig, c *casket.Controller) (IPPath, error
 				return cPath, c.Err("ipfilter: No such blacklist prefix dir: " + prefixDir)
 			}
 			cPath.PrefixDir = prefixDir
+		case "prefix_file":
+			if !c.NextArg() || cPath.PrefixFile != "" {
+				return cPath, c.ArgErr()
+			}
+			prefixFile := c.Val()
+			if _, err := os.Stat(prefixFile); err != nil {
+				return cPath, c.Errf("ipfilter: No such prefix file: %s", prefixFile)
+			}
+			if _, err := parsePrefixFile(prefixFile); err != nil {
+				return cPath, c.Errf("ipfilter: %v", err)
+			}
+			cPath.PrefixFile = prefixFile
 		}
 	}
 
@@ -447,7 +504,7 @@ func ipfilterParseSingle(config *IPFConfig, c *casket.Controller) (IPPath, error
 func ipfilterParse(c *casket.Controller) (IPFConfig, error) {
 	var config IPFConfig
 
-	var hasCountryCodes, hasRanges, hasPrefixDir bool
+	var hasCountryCodes, hasRanges bool
 
 	for c.Next() {
 		path, err := ipfilterParseSingle(&config, c)
@@ -458,11 +515,8 @@ func ipfilterParse(c *casket.Controller) (IPFConfig, error) {
 		if len(path.CountryCodes) != 0 {
 			hasCountryCodes = true
 		}
-		if len(path.Nets) != 0 {
+		if len(path.Nets) != 0 || path.PrefixFile != "" || path.PrefixDir != "" {
 			hasRanges = true
-		}
-		if path.PrefixDir != "" {
-			hasPrefixDir = true
 		}
 
 		config.Paths = append(config.Paths, path)
@@ -474,8 +528,8 @@ func ipfilterParse(c *casket.Controller) (IPFConfig, error) {
 	}
 
 	// Must specify at least one of these subdirectives.
-	if !hasCountryCodes && !hasRanges && !hasPrefixDir {
-		return config, c.Err("ipfilter: No IPs, Country codes, or prefix dir has been provided")
+	if !hasCountryCodes && !hasRanges {
+		return config, c.Err("ipfilter: No IPs, Country codes, prefix file, or prefix dir has been provided")
 	}
 
 	return config, nil

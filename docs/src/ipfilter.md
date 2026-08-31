@@ -1,8 +1,103 @@
 # ipfilter
 
+<script setup>
+import NewInCasket from "./components/NewInCasket.vue";
+</script>
+
 The ipfilter directive adds the ability to allow or block requests based on the client&#39;s IP address.
 
-**[Full documentation](https://github.com/tmpim/casket/blob/master/caskethttp/ipfilter/README.md)**
+## Syntax
+
+``` casketfile
+ipfilter <basepath> {
+  rule        <block | allow>
+  ip          <addresses or CIDR ranges to block>
+  prefix_dir  <IP addr directory prefix>
+  prefix_file <IP addr file>
+  database    </path/to/GeoLite2-Country.mmdb>
+  country     <ISO two letter country codes>
+  blockpage   <blockpage.html>
+  strict
+}
+```
+
+You can specify zero or more `ipfilter` blocks. Each `ipfilter` block has to specify at least one `ip`, `prefix_dir` or
+`country` directive. If no `ipfilter` blocks are defined this middleware will allow every request.
+
+* **basepath**: A sequence of URI path prefixes to match for the filter to be active. You have to specify at least one
+  path prefix. Use `/` to match every request. If the request doesn't match one of these prefixes the filter is ignored
+  for purposes of determining if the request is blocked or allowed.
+
+* **rule**: Should the filter `block` (blacklist) or `allow` (whitelist) the addresses. This directive is mandatory. It
+  is an error to use it more than once per ipfilter block. The **rule** in effect for the last `ipfilter` block to match
+  a request determines if it is blocked or allowed.
+
+  Note that if you only have `ipfilter` blocks that specify `rule allow` then any request which doesn't match those
+  filters will be implicitly blocked.
+
+* **ip**: A sequence of IP adddresses or CIDR ranges to match. For example, `ip 1.2.3.4 192.168.0.0/24` This is
+  optional. It can be used more than once in each `ipfilter` block rather than enumerating all IPs after a single `ip`
+  directive.
+
+* **prefix_dir**: Specifies a directory in which to search for file names matching the IP address of the request. This 
+  is optional. It is an error to use this more than once per `ipfilter` block.
+
+  You can specify a relative pathname to place it relative to the Casket server CWD (which should be the content root
+  dir). When putting the blacklisted directory in the web server document tree you should also add an `internal`
+  directive to ensure those files are not visible via HTTP GET requests. For example, `internal /blacklist/`. You can 
+  also specify an absolute pathname to locate the blacklist directory outside the document tree. And the path can 
+  include environment vars. For example, `prefix_dir {$HOME}/etc/www/blacklist`.
+
+  You can create the file in the root of the blacklist directory. This is known as using a "flat" namespace. For
+  example, `blacklist/127.0.0.1` or `blacklist/2601:647:4601:fa93:1865:4b6c:d055:3f3`. However, putting thousands of
+  files in a single directory may cause poor performance of the lookup function. So you can also, and should, use a
+  "sharded" namespace. This involves creating the file in a subdirectory based on the first two components of the
+  address. For example, `blacklist/127/0/127.0.0.1` or `blacklist/2601/647/2601:647:4601:fa93:1865:4b6c:d055:3f3`.
+
+  **Note:** IPv6 addresses as file names can use colons or equal-signs to separate the components; e.g.,
+  `blacklist/2601/647/2601=647=4601=fa93==3f3`. Using equal-signs in place of colons in the file name may be necessary 
+  on platforms like MS Windows which assign special meaning to colons in file names. You have to use one or the other;
+  you cannot mix them in the same file name.
+
+  Note that you can also whitelist IP addresses using this mechanism by specifying `rule allow`. This may be useful when
+  it follows a more general blocking rule (e.g., by country) and you want to selectively allow some addresses through 
+  but don't want to hardcode the addresses in the Casket config file.
+
+  This mechanism is most useful when coupled with automated monitoring of your web server activity to detect signals 
+  that your server is under attack from malware. All your monitoring software has to do is create a file in the 
+  blacklist directory.
+
+  At this time the content of the file is ignored. In the future the contents will probably be read and exposed as a
+  placeholder variable for use in conjuction with a template to be filled in via the `markdown` directive. So you should
+  consider putting some explanatory text in the file explaining why the address was blocked.
+
+* **prefix_file**: <NewInCasket version="v1.6.0" /> Similar to **prefix_dir**, but uses a single flat file containing 
+  newline-separated IP addresses to block. The file is auto-reloaded with a 500ms debounce. This is more performant than
+  the file & directory lookups for each request that **prefix_dir** does, at the cost of requiring more code to maintain 
+  the prefix file with automated monitoring software.
+
+  Blank lines and comments in the file (lines starting with `#`, `;`, or `/`) will be ignored.
+
+* **database**: Specifies the path to a [MaxMind](https://dev.maxmind.com/geoip/geoip2/geolite2/) database. This is
+  required if using the **country** directive; otherwise it should be omitted.
+
+* **country**: A whitespace separated sequence of ISO two letter country codes to filter. This is optional but if used
+  also requires a **database** directive. Note that if a country could not be found for the address it will be the empty
+  string. This can be specified more than once per block rather than enumerating all countries on a single line.
+
+* **blockpage**: Names the file to be returned if the ipfilter matches. Note that a `http.StatusOK` (200) status is
+  returned if the page is successfully returned to the client. This is optional. If not specified then a
+  `http.StatusForbidden` (403) status is returned.
+
+* **strict**: Use this to disallow use of the address in the `X-Forwarded-For` request header if any. This is optional
+  and defaults to false. If true or there is no `X-Forwarded-For` header use the address from the request remote
+  address.
+
+## Using multiple `ipfilter` blocks
+
+The `ipfilter` blocks are evaluated for each HTTP request in the order they appear. The last rule which matches a
+request is used to decide if the request is allowed. So in general you will want more general rules (e.g., blacklist an
+entire country) to appear before more specific rules (e.g., to whitelist specific address ranges).
 
 ## Examples
 
@@ -18,7 +113,7 @@ ipfilter / {
 Casket will block any clients with IPs that fall into one of these two ranges `70.1.128.0/19` and `2001:db8::/122`, or
 a client that has an IP of `9.12.20.16` explicitly.
 
-### Filter clients based on specified IPs stored as file names in the
+### Filter clients based on specified IPs stored as file names in a prefix directory
 
 ``` casketfile
 ipfilter / {
@@ -45,6 +140,20 @@ blacklist directory. At this time the content of the file is ignored. In the fut
 and exposed as a placeholder variable for use in conjuction with a template to be filled in via the `markdown`
 directive. So you should consider putting some explanatory text in the file explaining why the address was blocked.
 
+### Filter clients using a prefix file
+
+<NewInCasket version="v1.6.0" />
+
+``` casketfile
+ipfilter / {
+  rule block
+  prefix_file /etc/blocked_ips.txt
+}
+```
+
+Casket will block any client IP that appears in the `/etc/blocked_ips.txt` file. The file should contain one IP address 
+per line. The file is automatically reloaded when it changes.
+
 ### Filter clients based on their Country ISO Code
 
 ``` casketfile
@@ -58,6 +167,20 @@ ipfilter / {
 With that in your Casketfile, Casket will only serve users from the `United States` or `Japan`. filtering with country
 codes requires a local copy of the Geo database, can be downloaded for free from
 [MaxMind](https://dev.maxmind.com/geoip/geoip2/geolite2/).
+
+### Block clients from specific countries on restricted paths
+
+``` casketfile
+ipfilter /notglobal /secret {
+  rule block
+  database /data/GeoLite.mmdb
+  blockpage default.html
+  country US JP
+}
+```
+
+Casket will block any requests from `United States` or `Japan` to `/notglobal` or `/secret` and serve `default.html` 
+instead.
 
 ### Define a block page
 
@@ -99,59 +222,8 @@ ipfilter /webhook {
 You can use as many `ipfilter` blocks as you please, the above says: block everyone but `32.55.3.10`, Unless it falls in
 `192.168.1.0/24` and requesting a path in `/webhook`.
 
-### Syntax
+## Backward compatibility
 
-``` casketfile
-ipfilter <basepath> {
-  rule       <block | allow>
-  ip         <addresses or CIDR ranges to block>
-  prefix_dir <IP addr directory prefix>
-  database   </path/to/GeoLite2-Country.mmdb>
-  country    <ISO two letter country codes>
-  blockpage  <blockpage.html>
-  strict
-}
-```
-
-You can specify zero or more `ipfilter` blocks. Each `ipfilter` block has to specify at least one `ip`, `prefix_dir` or
-`country` directive. If no `ipfilter` blocks are defined this middleware will allow every request. \* **basepath**: A
-sequence of URI path prefixes to match for the filter to be active. You have to specify at least one path prefix. Use
-`/` to match every request. If the request doesn&#39;t match one of these prefixes the filter is ignored for purposes of
-determining if the request is blocked or allowed. \* **rule**: Should the filter `block` (blacklist) or `allow`
-(whitelist) the addresses. This directive is mandatory. It is an error to use it more than once per ipfilter block. The
-**rule** in effect for the last `ipfilter` block to match a request determines if it is blocked or allowed. Note that if
-you only have `ipfilter` blocks that specify `rule allow` then any request which doesn&#39;t match those filters will be
-implicitly blocked. \* **ip**: A sequence of IP adddresses or CIDR ranges to match. For example,
-`ip 1.2.3.4 192.168.0.0/24` This is optional. It can be used more than once in each `ipfilter` block rather than
-enumerating all IPs after a single `ip` directive. \* **prefix_dir**: Specifies a directory in which to search for file
-names matching the IP address of the request. This is optional. It is an error to use this more than once per `ipfilter`
-block. You can specify a relative pathname to place it relative to the Casket server CWD (which should be the content
-root dir). When putting the blacklisted directory in the web server document tree you should also add an `internal`
-directive to ensure those files are not visible via HTTP GET requests. For example, `internal /blacklist/`. You can also
-specify an absolute pathname to locate the blacklist directory outside the document tree. And the path can include
-environment vars. For example, `prefix_dir {$HOME}/etc/www/blacklist`. You can create the file in the root of the
-blacklist directory. This is known as using a &#34;flat&#34; namespace. For example, *blacklist/127.0.0.1* or
-*blacklist/2601:647:4601:fa93:1865:4b6c:d055:3f3*. However, putting thousands of files in a single directory may cause
-poor performance of the lookup function. So you can also, and should, use a &#34;sharded&#34; namespace. This involves
-creating the file in a subdirectory based on the first two components of the address. For example,
-*blacklist/127/0/127.0.0.1* or *blacklist/2601/647/2601:647:4601:fa93:1865:4b6c:d055:3f3*. **Note:** IPv6 addresses as
-file names can use colons or equal-signs to separate the components; e.g., *blacklist/2601/647/2601=647=4601=fa93==3f3*.
-Using equal-signs in place of colons in the file name may be necessary on platforms like MS Windows which assign special
-meaning to colons in file names. You have to use one or the other; you cannot mix them in the same file name. Note that
-you can also whitelist IP addresses using this mechanism by specifying `rule allow`. This may be useful when it follows
-a more general blocking rule (e.g., by country) and you want to selectively allow some addresses through but don&#39;t
-want to hardcode the addresses in the Casket config file. This mechanism is most useful when coupled with automated
-monitoring of your web server activity to detect signals that your server is under attack from malware. All your
-monitoring software has to do is create a file in the blacklist directory. At this time the content of the file is
-ignored. In the future the contents will probably be read and exposed as a placeholder variable for use in conjuction
-with a template to be filled in via the `markdown` directive. So you should consider putting some explanatory text in
-the file explaining why the address was blocked. \* **database**: Specifies the path to a
-[MaxMind](https://dev.maxmind.com/geoip/geoip2/geolite2/) database. This is required if using the **country** directive;
-otherwise it should be omitted. \* **country**: A whitespace separated sequence of ISO two letter country codes to
-filter. This is optional but if used also requires a **database** directive. Note that if a country could not be found
-for the address it will be the empty string. This can be specified more than once per block rather than enumerating all
-countries on a single line. \* **blockpage**: Names the file to be returned if the ipfilter matches. Note that a
-`http.StatusOK` (200) status is returned if the page is successfully returned to the client. This is optional. If not
-specified then a `http.StatusForbidden` (403) status is returned. \* **strict**: Use this to disallow use of the address
-in the `X-Forwarded-For` request header if any. This is optional and defaults to false. If true or there is no
-`X-Forwarded-For` header use the address from the request remote address.
+`ipfilter` supports [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing). This is the 
+recommended way of specifiying ranges. The old formats of ranging over IPs will get converted to CIDR via
+[range2CIDRs](https://github.com/pyed/ipfilter/blob/master/range2CIDRs.go) for the purpose of backward compatibility.
