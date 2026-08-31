@@ -32,3 +32,8 @@ yarn-error.log*
 /.vscode/
 
 .pnpm-store
+
+# override `Casketfile.*` rule in root .gitignore
+!src/casketfile.md
+!src/tutorial/casketfile.md
+!src/.vitepress/casketfile.tmLanguage.json
