@@ -1,12 +1,6 @@
 # webdav
 
-> ⚠️ This plugin is no longer maintained, nor is it compatible with casket 2+. For a casket v2 WebDAV plugin, please check [@mholt's webdav plugin](https://github.com/mholt/casket-webdav/).
-
-[![Build](https://img.shields.io/circleci/project/github/emmachase/casket-webdav/master.svg?style=flat-square)](https://circleci.com/gh/emmachase/casket-webdav)
-[![community](https://img.shields.io/badge/community-forum-ff69b4.svg?style=flat-square)](https://casket.community)
-[![Go Report Card](https://goreportcard.com/badge/github.com/emmachase/casket-webdav?style=flat-square)](https://goreportcard.com/report/emmachase/casket-webdav)
-
-casket plugin that implements WebDAV. You can download this plugin with casket on its [official download page](https://casketserver.com/download).
+casket plugin that implements WebDAV.
 
 (Forked from: https://github.com/hacdias/caddy-v1-webdav)
 

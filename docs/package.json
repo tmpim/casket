@@ -1,0 +1,24 @@
+{
+  "name": "casket-docs",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev docs",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs"
+  },
+  "dependencies": {
+    "vue": "^3.5.40"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "@tsconfig/node24": "^24.0.4",
+    "@types/node": "^24.13.3",
+    "@vue/tsconfig": "^0.9.1",
+    "autoprefixer": "^10.5.4",
+    "postcss": "^8.5.24",
+    "tailwindcss": "^4.3.3",
+    "vitepress": "^1.6.4"
+  },
+  "packageManager": "pnpm@11.18.0+sha512.33d83c77da82f49fba836925c6f1b841181ec3132b670639bd012f7075f5c7cf634c5f870147c19aae7478fac01df09d8892e880454896edd23ee9b33757563c"
+}
