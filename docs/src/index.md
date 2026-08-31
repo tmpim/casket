@@ -42,7 +42,7 @@ documented, but will be in due course.
   ([#26](https://github.com/tmpim/casket/pull/26))
 - Environment variables everywhere placeholders are supported
   ([1bedd5e](https://github.com/tmpim/casket/commit/1bedd5e))
-- GeoIP databases loaded by [`realip`](/http.realip) are reloaded automatically when the file changes 
+- GeoIP databases loaded by [`realip`](/realip) are reloaded automatically when the file changes 
   ([c672019](https://github.com/tmpim/casket-plugins/compare/319da03..eef6146))
 - Telemetry disabled and removed from the codebase
 
