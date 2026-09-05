@@ -47,6 +47,7 @@ var (
 type staticUpstream struct {
 	from              string
 	upstreamHeaders   http.Header
+	allowAllUpgrades  bool
 	downstreamHeaders http.Header
 	stop              chan struct{}  // Signals running goroutines to stop.
 	wg                sync.WaitGroup // Used to wait for running goroutines to stop.
@@ -235,6 +236,7 @@ func (u *staticUpstream) NewHost(host string) (*UpstreamHost, error) {
 		FailTimeout:       u.FailTimeout,
 		Unhealthy:         0,
 		UpstreamHeaders:   u.upstreamHeaders,
+		AllowAllUpgrades:  u.allowAllUpgrades,
 		DownstreamHeaders: u.downstreamHeaders,
 		CheckDown: func(u *staticUpstream) UpstreamHostDownFunc {
 			return func(uh *UpstreamHost) bool {
@@ -504,7 +506,10 @@ func parseBlock(c *casketfile.Dispenser, u *staticUpstream, hasSrv bool) error {
 		u.upstreamHeaders.Add("X-Real-IP", "{remote}")
 		u.upstreamHeaders.Add("X-Forwarded-Proto", "{scheme}")
 		u.upstreamHeaders.Add("X-Forwarded-Port", "{server_port}")
-	case "websocket":
+	case "websocket", "upgrade":
+		if c.Val() == "upgrade" {
+			u.allowAllUpgrades = true
+		}
 		u.upstreamHeaders.Add("Connection", "{>Connection}")
 		u.upstreamHeaders.Add("Upgrade", "{>Upgrade}")
 	case "without":

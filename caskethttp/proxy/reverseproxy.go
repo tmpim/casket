@@ -351,11 +351,18 @@ func (rp *ReverseProxy) UseClientCertificates(keyPair *tls.Certificate) {
 }
 
 // ServeHTTP serves the proxied request to the upstream by performing a roundtrip.
-// It is designed to handle websocket connection upgrades as well.
+// It also tunnels negotiated HTTP protocol upgrades.
 func (rp *ReverseProxy) ServeHTTP(rw http.ResponseWriter, outreq *http.Request, respUpdateFn respUpdateFn) error {
 	transport := rp.Transport
-	if requestIsWebsocket(outreq) {
-		transport = newConnHijackerTransport(transport)
+	if requestIsUpgrade(outreq) {
+		hj := newConnHijackerTransport(transport)
+		transport = hj
+		defer func() {
+			if hj.Conn != nil {
+				hj.Conn.Close()
+			}
+			bufferPool.Put(hj.Replay)
+		}()
 	}
 
 	rp.Director(outreq)
@@ -369,7 +376,16 @@ func (rp *ReverseProxy) ServeHTTP(rw http.ResponseWriter, outreq *http.Request, 
 		return err
 	}
 
-	isWebsocket := res.StatusCode == http.StatusSwitchingProtocols && strings.EqualFold(res.Header.Get("Upgrade"), "websocket")
+	isUpgrade := res.StatusCode == http.StatusSwitchingProtocols
+	if isUpgrade {
+		selected := strings.TrimSpace(res.Header.Get("Upgrade"))
+		if !requestIsUpgrade(outreq) || selected == "" ||
+			!headerHasToken(outreq.Header, "Upgrade", selected) ||
+			!headerHasToken(res.Header, "Connection", "upgrade") {
+			res.Body.Close()
+			return fmt.Errorf("backend returned an unsolicited or mismatched protocol upgrade %q", selected)
+		}
+	}
 
 	// Remove hop-by-hop headers listed in the
 	// "Connection" header of the response.
@@ -389,7 +405,7 @@ func (rp *ReverseProxy) ServeHTTP(rw http.ResponseWriter, outreq *http.Request, 
 		respUpdateFn(res)
 	}
 
-	if isWebsocket {
+	if isUpgrade {
 		defer res.Body.Close()
 		hj, ok := rw.(http.Hijacker)
 		if !ok {
@@ -408,7 +424,6 @@ func (rp *ReverseProxy) ServeHTTP(rw http.ResponseWriter, outreq *http.Request, 
 			if _, err := conn.Write(hj.Replay); err != nil {
 				return err
 			}
-			bufferPool.Put(hj.Replay)
 		} else {
 			backendConn, err = net.DialTimeout("tcp", outreq.URL.Host, rp.dialer.Timeout)
 			if err != nil {
@@ -745,8 +760,20 @@ func (tlsHandshakeTimeoutError) Timeout() bool   { return true }
 func (tlsHandshakeTimeoutError) Temporary() bool { return true }
 func (tlsHandshakeTimeoutError) Error() string   { return "net/http: TLS handshake timeout" }
 
-func requestIsWebsocket(req *http.Request) bool {
-	return strings.EqualFold(req.Header.Get("Upgrade"), "websocket") && strings.Contains(strings.ToLower(req.Header.Get("Connection")), "upgrade")
+func requestIsUpgrade(req *http.Request) bool {
+	return strings.TrimSpace(req.Header.Get("Upgrade")) != "" && headerHasToken(req.Header, "Connection", "upgrade")
+}
+
+// headerHasToken matches complete tokens across comma-separated header values.
+func headerHasToken(header http.Header, name, token string) bool {
+	for _, value := range header.Values(name) {
+		for _, part := range strings.Split(value, ",") {
+			if strings.EqualFold(strings.TrimSpace(part), token) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 type writeFlusher interface {

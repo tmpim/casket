@@ -79,10 +79,12 @@ type UpstreamHostDownFunc func(*UpstreamHost) bool
 type UpstreamHost struct {
 	// This field is read & written to concurrently, so all access must use
 	// atomic operations.
-	Conns             int64 // must be first field to be 64-bit aligned on 32-bit systems
-	MaxConns          int64
-	Name              string // hostname of this upstream host
-	UpstreamHeaders   http.Header
+	Conns           int64 // must be first field to be 64-bit aligned on 32-bit systems
+	MaxConns        int64
+	Name            string // hostname of this upstream host
+	UpstreamHeaders http.Header
+	// AllowAllUpgrades opts into protocols beyond WebSocket.
+	AllowAllUpgrades  bool
 	DownstreamHeaders http.Header
 	FailTimeout       time.Duration
 	CheckDown         UpstreamHostDownFunc
@@ -226,6 +228,15 @@ func (p Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 			if hostHeaders, ok := outreq.Header["Host"]; ok && len(hostHeaders) > 0 {
 				outreq.Host = hostHeaders[len(hostHeaders)-1]
 			}
+		}
+
+		// General protocol upgrades require explicit opt-in. Restrict the
+		// offer sent upstream as well, so a mixed offer cannot bypass this.
+		if requestIsUpgrade(outreq) && !host.AllowAllUpgrades {
+			if !headerHasToken(outreq.Header, "Upgrade", "websocket") {
+				return http.StatusBadRequest, errors.New("non-WebSocket protocol upgrades require the upgrade preset")
+			}
+			outreq.Header.Set("Upgrade", "websocket")
 		}
 
 		// prepare a function that will update response

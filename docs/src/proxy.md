@@ -141,8 +141,11 @@ Everything after the first *to* is optional, including the block of properties e
 
 The following presets are available:
 
--   **websocket**\
-    Indicates this proxy is forwarding WebSocket connections. It is shorthand for:
+-   **upgrade**\
+    Enables forwarding HTTP protocol upgrades, including WebSockets,
+    Headscale's `tailscale-control-protocol`, and `DERP`. After a matching
+    `101 Switching Protocols` response, the proxy tunnels traffic in both
+    directions. It opts into general upgrade support and sets these headers:
 
     ``` casketfile
     header_upstream Connection {>Connection}
@@ -152,6 +155,14 @@ The following presets are available:
     ::: info
     HTTP/2 does not support protocol upgrade.
     :::
+
+-   **websocket**\
+    Enables only WebSocket upgrades and sets the same forwarding headers as
+    **upgrade**. Requests offering only other protocols are rejected with HTTP
+    400 before reaching the backend. Mixed offers are narrowed to `websocket`.
+    Manually setting the forwarding headers also retains this WebSocket-only
+    policy; use **upgrade** to allow other protocols. If both presets are
+    present, **upgrade** takes precedence regardless of their order.
 
 -   **transparent**\
     Passes thru host information from the original request as most backend apps would expect. Shorthand for:
